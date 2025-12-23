@@ -1,8 +1,6 @@
 const Notification = require("../models/Notification");
 const User = require("../models/User");
-// Temporarily disabled - requires nodemailer
-// const { sendNotificationEmail } = require("../utils/emailService");
-const sendNotificationEmail = () => {};
+const { sendNotificationEmail } = require("../utils/emailService");
 const logger = require("../utils/logger");
 
 /**
