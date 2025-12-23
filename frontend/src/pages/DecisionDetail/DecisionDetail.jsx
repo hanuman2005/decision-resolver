@@ -9,6 +9,7 @@ import PDFExport from '../../components/decisions/PDFExport';
 import toast from 'react-hot-toast';
 import {
   DecisionDetailContainer,
+  DecisionContentWrapper,
   BackButton,
   Header,
   StatusBadge,
@@ -115,10 +116,11 @@ import {
 
       return (
         <DecisionDetailContainer>
-          {/* Back Button */}
-          <BackButton onClick={() => navigate(`/groups/${groupId._id || groupId}`)}>
-            <ArrowLeft size={18} /> Back to Group
-          </BackButton>
+          <DecisionContentWrapper>
+            {/* Back Button */}
+            <BackButton onClick={() => navigate(`/groups/${groupId._id || groupId}`)}>
+              <ArrowLeft size={18} /> Back to Group
+            </BackButton>
 
           {/* Header */}
           <Header>
@@ -283,6 +285,7 @@ import {
               showPreview={false}
             />
           )}
+          </DecisionContentWrapper>
         </DecisionDetailContainer>
       );
     }

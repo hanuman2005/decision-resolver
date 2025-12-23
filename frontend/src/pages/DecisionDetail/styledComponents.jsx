@@ -9,14 +9,25 @@ export const SubmissionStatus = styled.span`
 	margin-left: 0.5rem;
 `;
 export const DecisionDetailContainer = styled.div`
+	min-height: 100vh;
+	background: linear-gradient(135deg, #011425 0%, #1f4959 50%, #5c7c89 100%);
+	padding: clamp(1rem, 3vw, 1.5rem);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	width: 100%;
+	box-sizing: border-box;
+`;
+
+export const DecisionContentWrapper = styled.div`
 	max-width: 800px;
-	margin: 2rem auto;
+	width: 100%;
 	background: rgba(31, 73, 89, 0.4);
 	backdrop-filter: blur(20px);
 	border-radius: 1.5rem;
 	box-shadow: 0 8px 32px rgba(1, 20, 37, 0.3);
 	border: 2px solid rgba(92, 124, 137, 0.5);
-	padding: 2.5rem 2rem 2rem 2rem;
+	padding: clamp(1.5rem, 3vw, 2.5rem);
 	display: flex;
 	flex-direction: column;
 	align-items: stretch;
@@ -35,6 +46,8 @@ export const BackButton = styled.button`
 	margin-bottom: 1.5rem;
 	padding: 0;
 	transition: color 0.2s;
+	align-self: flex-start;
+	
 	&:hover {
 		color: #ffffff;
 	}
