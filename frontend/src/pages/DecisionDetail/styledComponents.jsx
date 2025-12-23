@@ -218,6 +218,14 @@ export const SubmitCol = styled.div`
 	display: flex;
 	flex-direction: column;
 	margin-top: 1rem;
+	
+	a {
+		text-decoration: none;
+		
+		&:hover {
+			text-decoration: none;
+		}
+	}
 `;
 
 // Winner card

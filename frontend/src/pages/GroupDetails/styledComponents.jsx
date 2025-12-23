@@ -325,7 +325,15 @@ export const Section = styled.div`
   border-top: 1px solid rgba(92, 124, 137, 0.3);
 `;
 
-export const TabContent = styled.div``;
+export const TabContent = styled.div`
+  a {
+    text-decoration: none;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+`;
 
 export const MemberCard = styled.div`
   display: flex;
