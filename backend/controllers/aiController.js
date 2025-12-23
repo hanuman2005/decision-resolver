@@ -8,7 +8,7 @@ const Group = require("../models/Group");
  */
 exports.generateSuggestions = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { decisionType, groupData } = req.body;
 
     if (!decisionType) {

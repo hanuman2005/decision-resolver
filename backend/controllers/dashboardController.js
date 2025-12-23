@@ -24,12 +24,10 @@ exports.getDashboardStats = async (req, res) => {
     });
   } catch (error) {
     console.error("Dashboard stats error:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error fetching dashboard stats",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching dashboard stats",
+      error: error.message,
+    });
   }
 };
 
@@ -50,12 +48,10 @@ exports.getRecentActivity = async (req, res) => {
     res.json({ activity: [] });
   } catch (error) {
     console.error("Activity error:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error fetching recent activity",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching recent activity",
+      error: error.message,
+    });
   }
 };
 
@@ -76,11 +72,9 @@ exports.getUpcomingDecisions = async (req, res) => {
     res.json({ decisions: [] });
   } catch (error) {
     console.error("Decisions error:", error);
-    res
-      .status(500)
-      .json({
-        message: "Error fetching upcoming decisions",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching upcoming decisions",
+      error: error.message,
+    });
   }
 };
