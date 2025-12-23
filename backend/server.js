@@ -25,12 +25,7 @@ const aiRoutes = require("./routes/aiRoutes");
 const app = express();
 
 /**
- * Connect to Database
- */
-connectDB();
-
-/**
- * Middleware
+ * Middleware Setup (before connecting DB)
  */
 
 // Security headers
@@ -142,51 +137,61 @@ app.use(errorHandler);
  */
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, () => {
-  logger.info(
-    `🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
-  );
-  logger.info(`📍 API available at http://localhost:${PORT}`);
-  logger.info(`🏥 Health check at http://localhost:${PORT}/health`);
-});
+// Create an async IIFE to handle async operations at startup
+(async () => {
+  try {
+    await connectDB();
 
-/**
- * Graceful Shutdown
- */
-process.on("SIGTERM", async () => {
-  logger.info("SIGTERM signal received: closing HTTP server");
+    const server = app.listen(PORT, () => {
+      logger.info(
+        `🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
+      );
+      logger.info(`📍 API available at http://localhost:${PORT}`);
+      logger.info(`🏥 Health check at http://localhost:${PORT}/health`);
+    });
 
-  server.close(async () => {
-    logger.info("HTTP server closed");
+    /**
+     * Graceful Shutdown
+     */
+    process.on("SIGTERM", async () => {
+      logger.info("SIGTERM signal received: closing HTTP server");
 
-    // Close database connection
-    await closeDB();
+      server.close(async () => {
+        logger.info("HTTP server closed");
 
-    process.exit(0);
-  });
-});
+        // Close database connection
+        await closeDB();
 
-process.on("SIGINT", async () => {
-  logger.info("SIGINT signal received: closing HTTP server");
+        process.exit(0);
+      });
+    });
 
-  server.close(async () => {
-    logger.info("HTTP server closed");
+    process.on("SIGINT", async () => {
+      logger.info("SIGINT signal received: closing HTTP server");
 
-    // Close database connection
-    await closeDB();
+      server.close(async () => {
+        logger.info("HTTP server closed");
 
-    process.exit(0);
-  });
-});
+        // Close database connection
+        await closeDB();
 
-// Handle unhandled promise rejections
-process.on("unhandledRejection", (err) => {
-  logger.error("Unhandled Promise Rejection:", err);
+        process.exit(0);
+      });
+    });
 
-  // Close server & exit process
-  server.close(() => {
+    // Handle unhandled promise rejections
+    process.on("unhandledRejection", (err) => {
+      logger.error("Unhandled Promise Rejection:", err);
+
+      // Close server & exit process
+      server.close(() => {
+        process.exit(1);
+      });
+    });
+  } catch (error) {
+    logger.error("Failed to start server:", error);
     process.exit(1);
-  });
-});
+  }
+})();
 
 module.exports = app;
