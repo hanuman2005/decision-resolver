@@ -12,6 +12,7 @@ yarn.lock
 .env.development.local
 .env.test.local
 .env.production.local
+# .env.example is tracked as template
 
 # Logs
 logs/
@@ -61,8 +62,13 @@ temp/
 # Optional eslint cache
 .eslintcache
 
-# dotenv environment variable files
-.env*
+# dotenv environment variable files (.env* is too broad, exclude specific files)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+# .env.example is tracked as reference
 
 # MongoDB
 data/
