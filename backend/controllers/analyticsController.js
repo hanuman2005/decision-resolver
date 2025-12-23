@@ -8,7 +8,7 @@ const Group = require("../models/Group");
  */
 exports.getAnalytics = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
     const { timeRange = "7days" } = req.query;
 
     // Get user's groups to confirm access
