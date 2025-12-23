@@ -12,7 +12,7 @@ exports.getGroupMessages = async (req, res) => {
   try {
     const { groupId } = req.params;
     let { limit = 50, offset = 0 } = req.query;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Validate pagination parameters
     limit = Math.min(Math.max(parseInt(limit) || 50, 1), 100); // Min 1, Max 100
@@ -64,7 +64,7 @@ exports.sendMessage = async (req, res) => {
   try {
     const { groupId } = req.params;
     const { message } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id;
     const userName = req.user.name;
     const userAvatar =
       req.user.avatar || `https://i.pravatar.cc/150?img=${userId.slice(0, 8)}`;
@@ -124,7 +124,7 @@ exports.sendMessage = async (req, res) => {
 exports.markAsRead = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const message = await ChatMessage.findById(messageId);
     if (!message) {
@@ -151,7 +151,7 @@ exports.markAsRead = async (req, res) => {
 exports.markGroupAsRead = async (req, res) => {
   try {
     const { groupId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     await ChatMessage.updateMany(
       { groupId, isDeleted: false },
@@ -181,7 +181,7 @@ exports.markGroupAsRead = async (req, res) => {
 exports.deleteMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     const message = await ChatMessage.findById(messageId);
     if (!message) {
@@ -219,7 +219,7 @@ exports.editMessage = async (req, res) => {
   try {
     const { messageId } = req.params;
     const { message } = req.body;
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     if (!message || message.trim() === "") {
       return res
