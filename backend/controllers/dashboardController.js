@@ -8,7 +8,7 @@ const Group = require("../models/Group");
  */
 exports.getDashboardStats = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Get user's groups
     const groups = await Group.find({ members: userId });
@@ -41,7 +41,7 @@ exports.getDashboardStats = async (req, res) => {
  */
 exports.getRecentActivity = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Get user's groups
     const groups = await Group.find({ members: userId }).select("_id name");
@@ -67,7 +67,7 @@ exports.getRecentActivity = async (req, res) => {
  */
 exports.getUpcomingDecisions = async (req, res) => {
   try {
-    const userId = req.user.id;
+    const userId = req.user._id;
 
     // Get user's groups
     const groups = await Group.find({ members: userId }).select("_id name");
