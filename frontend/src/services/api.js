@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios from "axios";
 
 /**
  * Axios instance configuration
@@ -7,10 +7,13 @@ import axios from 'axios';
 
 // Create axios instance
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || process.env.VITE_API_URL || 'https://decision-resolver.onrender.com',
+  baseURL:
+    import.meta.env.VITE_API_URL ||
+    process.env.VITE_API_URL ||
+    "https://decision-resolver.onrender.com",
   timeout: 15000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -20,7 +23,7 @@ const api = axios.create({
  */
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -44,20 +47,22 @@ api.interceptors.response.use(
     if (error.response) {
       // Server responded with error status
       const { status, data } = error.response;
-      
+
       // Unauthorized - clear token and redirect to login
       if (status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
       }
-      
+
       // Return error message from server
-      const message = data.message || 'An error occurred';
+      const message = data.message || "An error occurred";
       return Promise.reject(new Error(message));
     } else if (error.request) {
       // Request made but no response received
-      return Promise.reject(new Error('No response from server. Please check your connection.'));
+      return Promise.reject(
+        new Error("No response from server. Please check your connection.")
+      );
     } else {
       // Something else happened
       return Promise.reject(error);
