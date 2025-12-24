@@ -15,7 +15,7 @@ services:
       - key: JWT_SECRET
         sync: false
       - key: FRONTEND_URL
-        value: https://group-decision-resolver.vercel.app
+        value: https://decision-resolver-6l9nxg0qd-hanumantha-raos-projects.vercel.app
       - key: RATE_LIMIT_WINDOW_MS
         value: 900000
       - key: RATE_LIMIT_MAX_REQUESTS
