@@ -6,6 +6,7 @@ import Button from '../../components/common/Button';
 import Loading from '../../components/common/Loading';
 import Card from '../../components/common/Card';
 import toast from 'react-hot-toast';
+import api from '../../services/api';
 
 const Container = styled.div`
   min-height: 100vh;
@@ -187,6 +188,8 @@ const EmptyState = styled.div`
   }
 `;
 
+import api from '../../services/api';
+
 const PendingInvites = () => {
   const navigate = useNavigate();
   const [invites, setInvites] = useState([]);
@@ -198,15 +201,9 @@ const PendingInvites = () => {
 
   const loadInvites = async () => {
     try {
-      const response = await fetch('/api/invites/pending', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
-        setInvites(data.data.invites);
+      const response = await api.get('/invites/pending');
+      if (response.data.success) {
+        setInvites(response.data.data.invites);
       }
     } catch (error) {
       console.error('Load invites error:', error);
@@ -218,24 +215,17 @@ const PendingInvites = () => {
 
   const handleAcceptInvite = async (inviteId) => {
     try {
-      const response = await fetch(`/api/invites/${inviteId}/accept`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
+      const response = await api.put(`/invites/${inviteId}/accept`);
+      if (response.data.success) {
         toast.success('Invite accepted! You can now access the group.');
         // Remove the accepted invite from the list
         setInvites(invites.filter(i => i._id !== inviteId));
         // Navigate to the group
         setTimeout(() => {
-          navigate(`/groups/${data.data.group._id}`);
+          navigate(`/groups/${response.data.data.group._id}`);
         }, 1000);
       } else {
-        toast.error(data.message || 'Failed to accept invite');
+        toast.error(response.data.message || 'Failed to accept invite');
       }
     } catch (error) {
       console.error('Accept invite error:', error);
@@ -245,19 +235,12 @@ const PendingInvites = () => {
 
   const handleDeclineInvite = async (inviteId) => {
     try {
-      const response = await fetch(`/api/invites/${inviteId}/decline`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-
-      const data = await response.json();
-      if (data.success) {
+      const response = await api.put(`/invites/${inviteId}/decline`);
+      if (response.data.success) {
         toast.success('Invite declined');
         setInvites(invites.filter(i => i._id !== inviteId));
       } else {
-        toast.error(data.message || 'Failed to decline invite');
+        toast.error(response.data.message || 'Failed to decline invite');
       }
     } catch (error) {
       console.error('Decline invite error:', error);
