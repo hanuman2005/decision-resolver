@@ -8,7 +8,9 @@ import axios from "axios";
 // Create axios instance
 const api = axios.create({
   baseURL:
-    (import.meta.env.VITE_API_URL || process.env.VITE_API_URL || "https://decision-resolver.onrender.com") + "/api",
+    (import.meta.env.VITE_API_URL ||
+      process.env.VITE_API_URL ||
+      "https://decision-resolver.onrender.com") + "/api",
   timeout: 15000,
   headers: {
     "Content-Type": "application/json",
