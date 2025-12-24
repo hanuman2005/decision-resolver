@@ -340,10 +340,8 @@ export const InviteModal = ({ groupId, onClose, onSuccess }) => {
         } else if (response.message?.includes('already sent')) {
           toast.error(`Invite already sent to ${selectedUser.name}`);
         } else {
-          toast.error(response.message || 'User conflict - cannot invite');
+          toast.error(response.message || 'Failed to send invite');
         }
-      } else {
-        toast.error(response.message || 'Failed to send invite');
       }
     } catch (error) {
       console.error('Invite error:', error);
