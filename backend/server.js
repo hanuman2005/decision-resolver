@@ -101,6 +101,15 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Health check for Render
+app.get("/api/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "API is healthy",
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/groups", groupRoutes);
