@@ -54,25 +54,25 @@ app.use(
         callback(null, true);
         return;
       }
-      
+
       // Check if origin is in whitelist
       if (allowedOrigins.includes(origin)) {
         callback(null, true);
         return;
       }
-      
+
       // Allow all Vercel deployments (*.vercel.app)
-      if (origin.includes('vercel.app')) {
+      if (origin.includes("vercel.app")) {
         callback(null, true);
         return;
       }
-      
+
       // Allow localhost variants for development
-      if (origin.includes('localhost')) {
+      if (origin.includes("localhost")) {
         callback(null, true);
         return;
       }
-      
+
       // Reject other origins
       callback(new Error("CORS not allowed"));
     },
@@ -110,6 +110,7 @@ app.use("/api", limiter);
 
 /**
  * Routes
+ * API endpoints and handlers
  */
 
 // Health check endpoint
