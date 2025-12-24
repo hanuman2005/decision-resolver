@@ -107,6 +107,7 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "API is healthy",
     timestamp: new Date().toISOString(),
+    routes: ["auth", "groups", "decisions", "invites", "chat", "notifications", "dashboard", "analytics", "ai", "conflicts"]
   });
 });
 
