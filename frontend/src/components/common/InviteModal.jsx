@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { X, Search, Loader } from 'lucide-react';
 import { toast } from 'react-hot-toast';
+import api from '../../services/api';
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -319,22 +320,13 @@ export const InviteModal = ({ groupId, onClose, onSuccess }) => {
 
     setInviting(true);
     try {
-      const response = await fetch('/api/invites', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify({
-          groupId,
-          userId: selectedUser._id,
-          message
-        })
+      const response = await api.post('/invites', {
+        groupId,
+        userId: selectedUser._id,
+        message
       });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.success) {
         toast.success('Invite sent successfully!');
         setSelectedUser(null);
         setMessage('');
@@ -343,17 +335,15 @@ export const InviteModal = ({ groupId, onClose, onSuccess }) => {
         onSuccess && onSuccess();
       } else {
         // Handle specific error codes
-        if (response.status === 409) {
-          if (data.message.includes('already a member')) {
-            toast.error(`${selectedUser.name} is already a member of this group`);
-          } else if (data.message.includes('already sent')) {
-            toast.error(`Invite already sent to ${selectedUser.name}`);
-          } else {
-            toast.error(data.message || 'User conflict - cannot invite');
-          }
+        if (response.message?.includes('already a member')) {
+          toast.error(`${selectedUser.name} is already a member of this group`);
+        } else if (response.message?.includes('already sent')) {
+          toast.error(`Invite already sent to ${selectedUser.name}`);
         } else {
-          toast.error(data.message || 'Failed to send invite');
+          toast.error(response.message || 'User conflict - cannot invite');
         }
+      } else {
+        toast.error(response.message || 'Failed to send invite');
       }
     } catch (error) {
       console.error('Invite error:', error);
