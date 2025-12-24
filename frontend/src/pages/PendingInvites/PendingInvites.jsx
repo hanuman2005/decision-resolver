@@ -188,8 +188,6 @@ const EmptyState = styled.div`
   }
 `;
 
-import api from '../../services/api';
-
 const PendingInvites = () => {
   const navigate = useNavigate();
   const [invites, setInvites] = useState([]);
