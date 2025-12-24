@@ -22,6 +22,7 @@ const conflictRoutes = require("./routes/conflictRoutes");
 
 /**
  * Initialize Express App
+ * Main server configuration and setup
  */
 const app = express();
 
