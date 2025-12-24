@@ -107,7 +107,18 @@ app.get("/api/health", (req, res) => {
     success: true,
     message: "API is healthy",
     timestamp: new Date().toISOString(),
-    routes: ["auth", "groups", "decisions", "invites", "chat", "notifications", "dashboard", "analytics", "ai", "conflicts"]
+    routes: [
+      "auth",
+      "groups",
+      "decisions",
+      "invites",
+      "chat",
+      "notifications",
+      "dashboard",
+      "analytics",
+      "ai",
+      "conflicts",
+    ],
   });
 });
 
@@ -140,6 +151,7 @@ app.get("/", (req, res) => {
 
 /**
  * Error Handling
+ * Catch all unhandled routes and errors
  */
 app.use(notFound);
 app.use(errorHandler);
