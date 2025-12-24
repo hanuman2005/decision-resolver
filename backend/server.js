@@ -49,11 +49,32 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      if (!origin) {
         callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
+        return;
       }
+      
+      // Check if origin is in whitelist
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      
+      // Allow all Vercel deployments (*.vercel.app)
+      if (origin.includes('vercel.app')) {
+        callback(null, true);
+        return;
+      }
+      
+      // Allow localhost variants for development
+      if (origin.includes('localhost')) {
+        callback(null, true);
+        return;
+      }
+      
+      // Reject other origins
+      callback(new Error("CORS not allowed"));
     },
     credentials: true,
   })
