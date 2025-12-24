@@ -161,7 +161,7 @@ const GroupChat = () => {
   const currentUser = user;
 
   return (
-    <div style={{ display: 'flex', height: '100vh', background: 'linear-gradient(135deg, #011425 0%, #1f4959 50%, #5c7c89 100%)' }}>
+    <div style={{ display: 'flex', height: '100vh', background: 'linear-gradient(135deg, #011425 0%, #1f4959 50%, #5c7c89 100%)', width: '100vw', overflowX: 'hidden' }}>
       {/* Sidebar - Group Members */}
       <div style={{ 
         width: showMemberList ? '16rem' : '0', 
@@ -169,7 +169,8 @@ const GroupChat = () => {
         backdropFilter: 'blur(10px)',
         borderRight: '1px solid rgba(176, 212, 221, 0.2)',
         transition: 'all 0.3s ease',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        minWidth: 0
       }}>
         <div style={{ padding: '1rem', borderBottom: '1px solid rgba(176, 212, 221, 0.2)' }}>
           <h3 style={{ fontWeight: 'bold', color: '#ffffff', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -327,10 +328,11 @@ const GroupChat = () => {
         <div style={{ 
           flex: '1', 
           overflowY: 'auto', 
-          padding: '1rem',
+          padding: 'clamp(0.5rem, 2vw, 1rem)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '1rem'
+          gap: '1rem',
+          minWidth: 0
         }}>
           {messages.map((message) => {
             const isCurrentUser = message.userId === currentUser.id || message.userId._id === currentUser.id;
@@ -342,7 +344,8 @@ const GroupChat = () => {
                   display: 'flex',
                   gap: '0.75rem',
                   flexDirection: isCurrentUser ? 'row-reverse' : 'row',
-                  alignItems: 'flex-end'
+                  alignItems: 'flex-end',
+                  minWidth: 0
                 }}
               >
                 {!isCurrentUser && (
@@ -357,7 +360,8 @@ const GroupChat = () => {
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: isCurrentUser ? 'flex-end' : 'flex-start',
-                  maxWidth: '70%'
+                  maxWidth: 'clamp(60%, 75%, 100%)',
+                  minWidth: 0
                 }}>
                   {!isCurrentUser && (
                     <span style={{ fontSize: '0.75rem', color: '#b0d4dd', marginBottom: '0.25rem', paddingX: '0.5rem' }}>
@@ -374,7 +378,9 @@ const GroupChat = () => {
                         : 'rgba(92, 124, 137, 0.3)',
                       color: isCurrentUser ? '#ffffff' : '#b0d4dd',
                       backdropFilter: 'blur(10px)',
-                      border: isCurrentUser ? 'none' : '1px solid rgba(176, 212, 221, 0.2)'
+                      border: isCurrentUser ? 'none' : '1px solid rgba(176, 212, 221, 0.2)',
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word'
                     }}
                   >
                     <p style={{ fontSize: '0.875rem', lineHeight: '1.5', margin: 0 }}>{message.message}</p>
@@ -441,9 +447,10 @@ const GroupChat = () => {
           background: 'rgba(92, 124, 137, 0.15)',
           backdropFilter: 'blur(10px)',
           borderTop: '1px solid rgba(176, 212, 221, 0.2)',
-          padding: '1rem'
+          padding: 'clamp(0.75rem, 2vw, 1rem)',
+          minWidth: 0
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '0.5rem', minWidth: 0 }}>
             <button
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
               style={{

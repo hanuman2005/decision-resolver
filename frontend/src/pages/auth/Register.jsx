@@ -22,6 +22,91 @@ import {
  * New user registration form
  */
 
+// Animation Variants
+const containerVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      delayChildren: 0.2,
+      staggerChildren: 0.12
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12
+    }
+  },
+  hover: {
+    backgroundColor: 'rgba(79, 70, 229, 0.05)',
+    transition: { duration: 0.3 }
+  }
+};
+
+const iconVariants = {
+  hidden: { scale: 0, rotate: -180 },
+  visible: {
+    scale: 1,
+    rotate: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 200,
+      damping: 20,
+      delay: 0.15
+    }
+  },
+  hover: {
+    scale: 1.15,
+    rotate: 5,
+    boxShadow: '0 20px 40px rgba(79, 70, 229, 0.3)',
+    transition: { duration: 0.3 }
+  }
+};
+
+const buttonVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12
+    }
+  },
+  hover: {
+    scale: 1.02,
+    boxShadow: '0 15px 35px rgba(79, 70, 229, 0.3)',
+    transition: { duration: 0.3 }
+  },
+  tap: { scale: 0.98 }
+};
+
+const arrowVariants = {
+  hidden: { x: 0, opacity: 0 },
+  visible: { opacity: 1, transition: { delay: 0.8 } },
+  hover: {
+    x: [0, 5, 0],
+    transition: {
+      duration: 0.6,
+      ease: 'easeInOut',
+      times: [0, 0.5, 1]
+    }
+  }
+};
+
 const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -91,114 +176,131 @@ const Register = () => {
 
   return (
     <RegisterContainer>
-      <RegisterWrapper as={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-        {/* Header */}
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-          <RegisterHeader>
-            <RegisterIcon>
-              <User />
-            </RegisterIcon>
-            <RegisterTitle>Get Started</RegisterTitle>
-            <RegisterSubtitle>Create your account and start making better decisions</RegisterSubtitle>
-          </RegisterHeader>
-        </motion.div>
-
-        {/* Register Form */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-          <Card>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.3 }}>
-                <Input
-                  label="Full Name"
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  error={errors.name}
-                  placeholder="John Doe"
-                  Icon={User}
-                  required
-                />
+      <motion.div variants={containerVariants} initial="hidden" animate="visible">
+        <RegisterWrapper as={motion.div}>
+          {/* Header */}
+          <motion.div variants={itemVariants} custom={0}>
+            <RegisterHeader>
+              <motion.div
+                variants={iconVariants}
+                initial="hidden"
+                animate="visible"
+                whileHover="hover"
+              >
+                <RegisterIcon>
+                  <User />
+                </RegisterIcon>
               </motion.div>
+              <RegisterTitle>Get Started</RegisterTitle>
+              <RegisterSubtitle>Create your account and start making better decisions</RegisterSubtitle>
+            </RegisterHeader>
+          </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.4 }}>
-                <Input
-                  label="Email"
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                  placeholder="you@example.com"
-                  Icon={Mail}
-                  required
-                />
-              </motion.div>
+          {/* Register Form */}
+          <motion.div variants={itemVariants} custom={1}>
+            <Card>
+              <form onSubmit={handleSubmit} className="space-y-5">
+                <motion.div variants={itemVariants} whileHover="hover">
+                  <Input
+                    label="Full Name"
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    error={errors.name}
+                    placeholder="John Doe"
+                    Icon={User}
+                    required
+                  />
+                </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
-                <Input
-                  label="Password"
-                  type="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  placeholder="••••••••"
-                  Icon={Lock}
-                  required
-                />
-              </motion.div>
+                <motion.div variants={itemVariants} whileHover="hover">
+                  <Input
+                    label="Email"
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    error={errors.email}
+                    placeholder="you@example.com"
+                    Icon={Mail}
+                    required
+                  />
+                </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.6 }}>
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  name="confirmPassword"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  error={errors.confirmPassword}
-                  placeholder="••••••••"
-                  Icon={Lock}
-                  required
-                />
-              </motion.div>
+                <motion.div variants={itemVariants} whileHover="hover">
+                  <Input
+                    label="Password"
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    error={errors.password}
+                    placeholder="••••••••"
+                    Icon={Lock}
+                    required
+                  />
+                </motion.div>
 
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.7 }}>
-                <Button
-                  type="submit"
-                  variant="primary"
-                  size="lg"
-                  loading={loading}
-                  fullWidth
+                <motion.div variants={itemVariants} whileHover="hover">
+                  <Input
+                    label="Confirm Password"
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    error={errors.confirmPassword}
+                    placeholder="••••••••"
+                    Icon={Lock}
+                    required
+                  />
+                </motion.div>
+
+                <motion.div
+                  variants={buttonVariants}
+                  whileHover="hover"
+                  whileTap="tap"
+                  initial="hidden"
+                  animate="visible"
                 >
-                  Create Account
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    size="lg"
+                    loading={loading}
+                    fullWidth
+                  >
+                    Create Account
+                    <motion.span variants={arrowVariants} whileHover="hover">
+                      <ArrowRight className="w-4 h-4" />
+                    </motion.span>
+                  </Button>
+                </motion.div>
+              </form>
+
+              {/* Divider */}
+              <RegisterDivider />
+
+              {/* Login Link */}
+              <motion.div variants={itemVariants} whileHover={{ scale: 1.05 }} initial="hidden" animate="visible">
+                <RegisterLoginLink>
+                  <span>Already have an account? </span>
+                  <Link
+                    to="/login"
+                    style={{
+                      color: '#009688',
+                      fontWeight: '500',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    Sign in instead
+                  </Link>
+                </RegisterLoginLink>
               </motion.div>
-            </form>
-
-            {/* Divider */}
-            <RegisterDivider />
-
-            {/* Login Link */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.8 }}>
-              <RegisterLoginLink>
-                <span>Already have an account? </span>
-            <Link
-              to="/login"
-              style={{ 
-                color: '#009688', 
-                fontWeight: '500',
-                textDecoration: 'none'
-              }}
-            >
-              Sign in instead
-            </Link>
-            </RegisterLoginLink>
-            </motion.div>
-          </Card>
-        </motion.div>
-      </RegisterWrapper>
+            </Card>
+          </motion.div>
+        </RegisterWrapper>
+      </motion.div>
     </RegisterContainer>
   );
 };

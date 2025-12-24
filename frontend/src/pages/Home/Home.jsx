@@ -1,6 +1,243 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import useScrollAnimation from '../../hooks/useScrollAnimation';
+
+// ===== ANIMATION VARIANTS =====
+
+const heroVariants = {
+  hidden: { opacity: 0, y: 40 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      duration: 0.8
+    }
+  }
+};
+
+const badgeVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 120,
+      damping: 14
+    }
+  },
+  hover: {
+    scale: 1.05,
+    transition: { duration: 0.2 }
+  }
+};
+
+const headingVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      delay: 0.2
+    }
+  }
+};
+
+const descriptionVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      delay: 0.4
+    }
+  }
+};
+
+const buttonGroupVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+      delay: 0.6
+    }
+  }
+};
+
+const buttonVariants = {
+  hover: {
+    scale: 1.05,
+    boxShadow: '0 20px 40px rgba(79, 70, 229, 0.3)',
+    transition: { duration: 0.3 }
+  },
+  tap: { scale: 0.95 }
+};
+
+const statCounterVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (index) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+      delay: 0.8 + index * 0.15
+    }
+  })
+};
+
+const featureCardVariants = {
+  hidden: { opacity: 0, y: 40, scale: 0.9 },
+  visible: (index) => ({
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 15,
+      delay: index * 0.1
+    }
+  }),
+  hover: {
+    scale: 1.05,
+    y: -10,
+    boxShadow: '0 30px 60px rgba(79, 70, 229, 0.2)',
+    transition: { duration: 0.3 }
+  }
+};
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12
+    }
+  }
+};
+
+const testimonialVariants = {
+  hidden: { opacity: 0, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 15
+    }
+  },
+  exit: {
+    opacity: 0,
+    scale: 0.9,
+    transition: { duration: 0.3 }
+  },
+  hover: {
+    scale: 1.02,
+    transition: { duration: 0.3 }
+  }
+};
+
+const comparisonRowVariants = {
+  hidden: { opacity: 0, x: -30 },
+  visible: (index) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+      delay: index * 0.1
+    }
+  })
+};
+
+const ctaVariants = {
+  hidden: { opacity: 0, y: 50 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15
+    }
+  }
+};
+
+// Scroll-triggered variants
+const scrollCardVariants = {
+  hidden: { opacity: 0, y: 60, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 15
+    }
+  }
+};
+
+const scrollSectionVariants = {
+  hidden: { opacity: 0, y: 80 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      delayChildren: 0.1,
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const scrollItemVariants = {
+  hidden: { opacity: 0, x: -40 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12
+    }
+  }
+};
+
 import {
 	Users, ArrowRight, CheckCircle,
 	Star, Coffee, Film, MapPin, Calendar, Globe,
@@ -52,6 +289,8 @@ import {
 	TestimonialDots,
 	TestimonialDot,
 	ComparisonSection,
+	ComparisonCardsContainer,
+	ComparisonCard,
 	ComparisonMobileView,
 	ComparisonMobileCard,
 	ComparisonFeatureTitle,
@@ -81,6 +320,7 @@ const Home = () => {
 	const { user } = useAuth();
 	const [currentTestimonial, setCurrentTestimonial] = useState(0);
 	const [statsCounter, setStatsCounter] = useState({ decisions: 0, users: 0, groups: 0 });
+	const [scrollY, setScrollY] = useState(0);
 
 	// Animated counter effect
 	useEffect(() => {
@@ -93,6 +333,16 @@ const Home = () => {
 		}, 50);
 
 		return () => clearInterval(interval);
+	}, []);
+
+	// Header side effect - parallax on scroll
+	useEffect(() => {
+		const handleScroll = () => {
+			setScrollY(window.scrollY);
+		};
+
+		window.addEventListener('scroll', handleScroll);
+		return () => window.removeEventListener('scroll', handleScroll);
 	}, []);
 
 	const features = [
@@ -312,70 +562,98 @@ const Home = () => {
 
 			{/* Features Grid */}
 			<FeaturesSection>
-				<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
-					<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
-						Everything You Need to Decide Smarter
-					</h2>
-					<p style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.1rem)', color: '#cbd5e1' }}>
-						Powerful features designed to make group decisions effortless
-					</p>
-				</div>
+			<motion.div
+				initial={{ opacity: 0, y: 40 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+				viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+				style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}
+			>
+				<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
+					Everything You Need to Decide Smarter
+				</h2>
+				<p style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.1rem)', color: '#cbd5e1' }}>
+					Powerful features designed to make group decisions effortless
+				</p>
+			</motion.div>
 
-				<FeaturesGrid>
-					{features.map((feature, idx) => (
-						<FeatureCard key={idx}>
+			<FeaturesGrid as={motion.div} initial="hidden" whileInView="visible" variants={scrollSectionVariants} viewport={{ once: true, margin: '0px 0px -200px 0px' }}>
+				{features.map((feature, idx) => (
+					<motion.div key={idx} variants={scrollCardVariants} custom={idx}>
+						<FeatureCard>
 							<FeatureImage>{feature.image}</FeatureImage>
 							<FeatureTitle>{feature.title}</FeatureTitle>
 							<FeatureDesc>{feature.description}</FeatureDesc>
 						</FeatureCard>
-					))}
-				</FeaturesGrid>
-			</FeaturesSection>
+					</motion.div>
+				))}
+			</FeaturesGrid>
+		</FeaturesSection>
 
 			{/* Use Cases */}
 			<UseCasesSection>
-			<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 2rem)' }}>
+			<motion.div
+				initial={{ opacity: 0, y: 40 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+				viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+				style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 2rem)' }}
+			>
 				<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
 					<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff' }}>
 						Perfect for Any Group Decision
 					</h2>
 				</div>
 
-				<div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(1.5rem, 2vw, 2rem)' }}>
+				<motion.div
+					style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 'clamp(1.5rem, 2vw, 2rem)' }}
+					initial="hidden"
+					whileInView="visible"
+					variants={scrollSectionVariants}
+					viewport={{ once: true, margin: '0px 0px -150px 0px' }}
+				>
 					{useCases.map((useCase, idx) => (
-						<div
-							key={idx}
-							style={{
-								display: 'flex',
-								alignItems: 'center',
-								gap: '1rem',
-								background: 'rgba(31, 73, 89, 0.4)',
-								backdropFilter: 'blur(20px)',
-								borderRadius: '1rem',
-								padding: 'clamp(1.5rem, 2vw, 2rem)',
-								border: '1px solid rgba(92, 124, 137, 0.5)',
-								transition: 'all 0.3s ease',
-												cursor: 'pointer'
-											}}
-											onMouseEnter={e => {
-												e.currentTarget.style.background = 'rgba(31, 73, 89, 0.6)';
-												e.currentTarget.style.boxShadow = '0 8px 24px rgba(31, 73, 89, 0.3)';
-												e.currentTarget.style.transform = 'translateY(-4px)';
-											}}
-											onMouseLeave={e => {
-												e.currentTarget.style.background = 'rgba(31, 73, 89, 0.4)';
-												e.currentTarget.style.boxShadow = 'none';
-												e.currentTarget.style.transform = 'translateY(0)';
-											}}
-										>
-											<useCase.icon style={{ width: '1.5rem', height: '1.5rem', color: '#4f46e5', flexShrink: 0 }} />
-											<span style={{ color: '#cbd5e1', fontSize: 'clamp(1rem, 1.5vw, 1.1rem)', fontWeight: '500' }}>{useCase.text}</span>
-										</div>
-									))}
-								</div>
+						<motion.div key={idx} variants={scrollItemVariants}>
+							<div
+								style={{
+									display: 'flex',
+									alignItems: 'center',
+									gap: '1rem',
+									background: 'rgba(31, 73, 89, 0.4)',
+									backdropFilter: 'blur(20px)',
+									borderRadius: '1rem',
+									padding: 'clamp(1.5rem, 2vw, 2rem)',
+									border: '1px solid rgba(92, 124, 137, 0.5)',
+									transition: 'all 0.3s ease',
+									cursor: 'pointer'
+								}}
+								onMouseEnter={e => {
+									e.currentTarget.style.background = 'rgba(31, 73, 89, 0.6)';
+									e.currentTarget.style.boxShadow = '0 8px 24px rgba(31, 73, 89, 0.3)';
+									e.currentTarget.style.transform = 'translateY(-4px)';
+								}}
+								onMouseLeave={e => {
+									e.currentTarget.style.background = 'rgba(31, 73, 89, 0.4)';
+									e.currentTarget.style.boxShadow = 'none';
+									e.currentTarget.style.transform = 'translateY(0)';
+								}}
+							>
+								<useCase.icon style={{ width: '1.5rem', height: '1.5rem', color: '#4f46e5', flexShrink: 0 }} />
+								<span style={{ color: '#cbd5e1', fontSize: 'clamp(1rem, 1.5vw, 1.1rem)', fontWeight: '500' }}>{useCase.text}</span>
 							</div>
-						</UseCasesSection>
+						</motion.div>
+					))}
+				</motion.div>
+			</motion.div>
+		</UseCasesSection>
 			<HowItWorksSection>
+			<motion.div
+				initial={{ opacity: 0, y: 40 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+				viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+				style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+			>
 				<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
 					<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
 						How It Works
@@ -385,23 +663,41 @@ const Home = () => {
 					</p>
 				</div>
 
-				<HowItWorksGrid>
+				<motion.div
+					as={HowItWorksGrid}
+					variants={scrollSectionVariants}
+					initial="hidden"
+					whileInView="visible"
+					viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+					style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+				>
 					{[
 						{ num: '1', title: 'Create a Group', desc: 'Invite your friends, family, or colleagues', gradient: 'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)' },
 						{ num: '2', title: 'Set Constraints', desc: 'Everyone adds their budget, preferences, and requirements', gradient: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' },
 						{ num: '3', title: 'Get Your Answer', desc: 'AI instantly finds the best option with transparent reasoning', gradient: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)' }
 					].map((step, idx) => (
-						<HowItWorksItem key={idx}>
+						<motion.div
+							key={idx}
+							variants={scrollCardVariants}
+							as={HowItWorksItem}
+						>
 							<StepNumberCircle $gradient={step.gradient}>{step.num}</StepNumberCircle>
 							<HowItWorksTitle>{step.title}</HowItWorksTitle>
 							<HowItWorksDesc>{step.desc}</HowItWorksDesc>
-						</HowItWorksItem>
+						</motion.div>
 					))}
-				</HowItWorksGrid>
-			</HowItWorksSection>
+				</motion.div>
+			</motion.div>
+		</HowItWorksSection>
 
-			{/* Testimonials */}
+		{/* Testimonials */}
 			<TestimonialsSection>
+			<motion.div
+				initial={{ opacity: 0, y: 40 }}
+				whileInView={{ opacity: 1, y: 0 }}
+				transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+				viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+			>
 				<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
 					<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
 						Loved by Thousands of Groups
@@ -411,7 +707,13 @@ const Home = () => {
 					</p>
 				</div>
 
-				<TestimonialContainer>
+				<motion.div
+					as={TestimonialContainer}
+					initial={{ opacity: 0, scale: 0.95 }}
+					whileInView={{ opacity: 1, scale: 1 }}
+					transition={{ type: 'spring', stiffness: 80, damping: 15, delay: 0.1 }}
+					viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+				>
 					<TestimonialCard>
 						<TestimonialHeader>
 							<TestimonialAvatar
@@ -453,80 +755,65 @@ const Home = () => {
 							</TestimonialButton>
 						</TestimonialControls>
 					</TestimonialCard>
-				</TestimonialContainer>
-			</TestimonialsSection>
+				</motion.div>
+			</motion.div>
+		</TestimonialsSection>
 
 			{/* Comparison Section */}
 			<ComparisonSection>
-				<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
-					<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
-						Why Choose Decision Resolver?
-					</h2>
-					<p style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.1rem)', color: '#cbd5e1' }}>
-						See how we compare to traditional group decision methods
-					</p>
-				</div>
+				<motion.div
+					initial={{ opacity: 0, y: 40 }}
+					whileInView={{ opacity: 1, y: 0 }}
+					transition={{ type: 'spring', stiffness: 80, damping: 15 }}
+					viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+				>
+					<div style={{ textAlign: 'center', marginBottom: 'clamp(2rem, 4vw, 3rem)' }}>
+						<h2 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '700', color: '#ffffff', marginBottom: '1rem' }}>
+							Why Choose Decision Resolver?
+						</h2>
+						<p style={{ fontSize: 'clamp(0.95rem, 1.5vw, 1.1rem)', color: '#cbd5e1' }}>
+							See how we compare to traditional group decision methods
+						</p>
+					</div>
 
-				{/* Mobile View */}
-				<ComparisonMobileView>
+					{/* Comparison Cards Container */}
+				<ComparisonCardsContainer>
 					{comparisonData.map((row, idx) => (
-						<ComparisonMobileCard key={idx}>
-							<ComparisonFeatureTitle>{row.feature}</ComparisonFeatureTitle>
-							<ComparisonFeatureRow>
-								<ComparisonLabel>Our App:</ComparisonLabel>
-								<ComparisonValue>
-									<CheckCircle style={{ width: '1rem', height: '1rem' }} />
-									{row.us}
-								</ComparisonValue>
-							</ComparisonFeatureRow>
-							<ComparisonFeatureRow>
-								<ComparisonLabel>Old Way:</ComparisonLabel>
-								<ComparisonOldWay>{row.them}</ComparisonOldWay>
-							</ComparisonFeatureRow>
-						</ComparisonMobileCard>
-					))}
-				</ComparisonMobileView>
-
-				{/* Desktop View */}
-				<ComparisonDesktopView>
-					<ComparisonDesktopHeader>
-						<div>Feature</div>
-						<div>Decision Resolver</div>
-						<div>Old Way</div>
-					</ComparisonDesktopHeader>
-					<ComparisonDesktopBody>
-						{comparisonData.map((row, idx) => (
-							<ComparisonDesktopRow key={idx}>
-								<div>{row.feature}</div>
-								<ComparisonDesktopValue>
-									<span>
-										<CheckCircle style={{ width: '1rem', height: '1rem' }} />
+						<motion.div
+							key={idx}
+							variants={scrollItemVariants}
+							initial="hidden"
+							whileInView="visible"
+							viewport={{ once: true, margin: '0px 0px -200px 0px' }}
+						>
+							<ComparisonCard>
+								<div style={{ marginBottom: '1rem', paddingBottom: '1rem', borderBottom: '1px solid rgba(100, 116, 139, 0.3)' }}>
+									<p style={{ fontSize: 'clamp(0.9rem, 1.2vw, 1rem)', fontWeight: '600', color: '#242424', margin: '0' }}>
+										{row.feature}
+									</p>
+								</div>
+								
+								<div style={{ marginBottom: '1.5rem' }}>
+									<p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Decision Resolver</p>
+									<p style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.1rem)', fontWeight: '600', color: '#10b981', margin: '0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+										<CheckCircle style={{ width: '1.1rem', height: '1.1rem', flexShrink: 0 }} />
 										{row.us}
-									</span>
-								</ComparisonDesktopValue>
-								<ComparisonOldWayValue>{row.them}</ComparisonOldWayValue>
-							</ComparisonDesktopRow>
-						))}
-					</ComparisonDesktopBody>
-				</ComparisonDesktopView>
-			</ComparisonSection>
+									</p>
+								</div>
 
-			{/* CTA Section */}
-			{!user && (
-				<CTASectionStyled>
-					<CTASectionContainer>
-						<Users style={{ width: 'clamp(3rem, 8vw, 4rem)', height: 'clamp(3rem, 8vw, 4rem)', margin: '0 auto clamp(1rem, 2vw, 1.5rem)', opacity: 0.9 }} />
-						<CTAHeading>Ready to Make Better Decisions?</CTAHeading>
-						<CTAMainText>
-							Join thousands of groups making smarter, fairer decisions every day. Get started in less than 2 minutes — completely free!
-						</CTAMainText>
-						<CTAButton to="/register">
-							Get Started Now - It's Free
-							<ArrowRight style={{ width: 'clamp(1rem, 2vw, 1.25rem)', height: 'clamp(1rem, 2vw, 1.25rem)' }} />
-						</CTAButton>
-					</CTASectionContainer>
-				</CTASectionStyled>
-			)}
+								<div>
+									<p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '0.5rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Old Way</p>
+									<p style={{ fontSize: 'clamp(0.95rem, 1.3vw, 1.1rem)', fontWeight: '500', color: '#cbd5e1', margin: '0' }}>
+										{row.them}
+									</p>
+								</div>
+							</ComparisonCard>
+						</motion.div>
+					))}
+				</ComparisonCardsContainer>
+			</motion.div>
+		</ComparisonSection>
+
 		</HomeContainer>
 	);
 };

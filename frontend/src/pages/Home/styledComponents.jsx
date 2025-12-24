@@ -480,6 +480,10 @@ export const HowItWorksSection = styled.section`
 	max-width: 1200px;
 	margin: 0 auto clamp(2rem, 4vw, 3rem);
 	padding: 0 clamp(1rem, 3vw, 2rem);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
 `;
 
 export const HowItWorksGrid = styled.div`
@@ -487,6 +491,8 @@ export const HowItWorksGrid = styled.div`
 	grid-template-columns: 1fr;
 	gap: clamp(2rem, 4vw, 3rem);
 	margin-top: clamp(2rem, 4vw, 3rem);
+	width: 100%;
+	justify-items: center;
 
 	@media (min-width: 768px) {
 		grid-template-columns: repeat(3, 1fr);
@@ -512,7 +518,7 @@ export const StepNumberCircle = styled.div`
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	margin-bottom: clamp(1rem, 2vw, 1.5rem);
+	margin: 0 auto clamp(1rem, 2vw, 1.5rem);
 	box-shadow: 0 4px 16px rgba(31, 73, 89, 0.3);
 `;
 
@@ -653,9 +659,43 @@ export const TestimonialDot = styled.button`
 // Comparison Section
 export const ComparisonSection = styled.section`
 	width: 100%;
-	max-width: 1000px;
+	max-width: 100%;
 	margin: 0 auto clamp(2rem, 4vw, 3rem);
 	padding: 0 clamp(1rem, 3vw, 2rem);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+`;
+
+export const ComparisonCardsContainer = styled.div`
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: clamp(1rem, 2vw, 1.5rem);
+	width: 100%;
+	max-width: 100%;
+
+	@media (max-width: 1024px) {
+		grid-template-columns: repeat(2, 1fr);
+	}
+
+	@media (max-width: 767px) {
+		grid-template-columns: 1fr;
+	}
+`;
+
+export const ComparisonCard = styled.div`
+	background: linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.8) 100%);
+	border: 1px solid rgba(100, 116, 139, 0.3);
+	border-radius: 12px;
+	padding: clamp(1.5rem, 3vw, 2rem);
+	backdrop-filter: blur(10px);
+	transition: all 0.3s ease;
+
+	&:hover {
+		border-color: rgba(16, 185, 129, 0.5);
+		background: linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+		box-shadow: 0 8px 32px rgba(16, 185, 129, 0.1);
+	}
 `;
 
 export const ComparisonMobileView = styled.div`
@@ -663,7 +703,7 @@ export const ComparisonMobileView = styled.div`
 	flex-direction: column;
 	gap: clamp(1rem, 2vw, 1.5rem);
 
-	@media (min-width: 1024px) {
+	@media (min-width: 768px) {
 		display: none;
 	}
 `;
@@ -728,57 +768,133 @@ export const ComparisonOldWay = styled.span`
 `;
 
 export const ComparisonDesktopView = styled.div`
-	display: none;
+	width: 100%;
+	display: block;
 	background: rgba(31, 73, 89, 0.3);
 	backdrop-filter: blur(20px);
 	border-radius: 1.5rem;
 	overflow: hidden;
 	border: 2px solid rgba(92, 124, 137, 0.5);
 
-	@media (min-width: 1024px) {
-		display: block;
+	@media (max-width: 767px) {
+		background: transparent;
+		border: none;
+		backdrop-filter: none;
 	}
 `;
 
 export const ComparisonDesktopHeader = styled.div`
 	display: grid;
-	grid-template-columns: 1fr 1fr 1fr;
-	gap: 1rem;
+	grid-template-columns: repeat(3, minmax(100px, 1fr));
+	gap: 1.5rem;
 	padding: clamp(1.5rem, 2vw, 2rem);
 	background: linear-gradient(135deg, #1f4959 0%, #5c7c89 100%);
 	color: #ffffff;
 	font-weight: 700;
 	font-size: clamp(0.95rem, 1.5vw, 1.05rem);
 	text-align: center;
+	width: 100%;
+
+	@media (max-width: 767px) {
+		display: none;
+	}
+
+	& > div:first-child {
+		text-align: left;
+	}
+
+	& > div:nth-child(2),
+	& > div:nth-child(3) {
+		text-align: center;
+	}
 `;
 
 export const ComparisonDesktopBody = styled.div`
-	display: contents;
+	display: flex;
+	flex-direction: column;
 `;
 
 export const ComparisonDesktopRow = styled.div`
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr;
-	gap: 1rem;
+	gap: 1.5rem;
 	padding: clamp(1.5rem, 2vw, 2rem);
 	align-items: center;
 	border-top: 1px solid rgba(92, 124, 137, 0.3);
-	text-align: center;
+	width: 100%;
+
+	@media (max-width: 767px) {
+		grid-template-columns: 1fr;
+		gap: 1rem;
+		padding: 1rem;
+		border: 1px solid rgba(92, 124, 137, 0.5);
+		border-radius: 1rem;
+		margin-bottom: 1rem;
+		background: rgba(31, 73, 89, 0.4);
+		border-top: none;
+	}
 
 	& > div:first-child {
 		text-align: left;
 		font-weight: 600;
 		color: #ffffff;
 		font-size: clamp(0.9rem, 1.5vw, 1rem);
+		min-width: 0;
+
+		@media (max-width: 767px) {
+			font-weight: 700;
+			font-size: 1.1rem;
+			margin-bottom: 0.5rem;
+			border-bottom: 1px solid rgba(92, 124, 137, 0.3);
+			padding-bottom: 0.5rem;
+		}
+	}
+
+	& > div:nth-child(2) {
+		text-align: center;
+		min-width: 0;
+
+		@media (max-width: 767px) {
+			text-align: left;
+		}
+	}
+
+	& > div:nth-child(3) {
+		text-align: center;
+		min-width: 0;
+
+		@media (max-width: 767px) {
+			text-align: left;
+		}
 	}
 `;
 
 export const ComparisonDesktopValue = styled.div`
+	padding: 0;
+	min-width: 0;
+	overflow: hidden;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 
+	@media (max-width: 767px) {
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		justify-content: flex-start;
+
+		&::before {
+			content: 'Our App: ';
+			color: #cbd5e1;
+			font-size: 0.85rem;
+			flex-shrink: 0;
+		}
+	}
+
 	& span {
+		display: flex;
+		align-items: center;
+		justify-content: center;
 		font-size: clamp(0.85rem, 1.5vw, 0.95rem);
 		font-weight: 600;
 		color: #10b981;
@@ -786,15 +902,26 @@ export const ComparisonDesktopValue = styled.div`
 		padding: clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.2vw, 1rem);
 		border-radius: 9999px;
 		border: 1px solid rgba(16, 185, 129, 0.5);
-		display: inline-flex;
-		align-items: center;
 		gap: 0.4rem;
-		white-space: nowrap;
+		width: fit-content;
+		margin: 0 auto;
+
+		@media (max-width: 767px) {
+			margin: 0;
+			background: transparent;
+			border: none;
+			padding: 0;
+			font-size: 0.95rem;
+		}
 
 		& svg {
 			width: 1rem;
 			height: 1rem;
 			flex-shrink: 0;
+
+			@media (max-width: 767px) {
+				display: none;
+			}
 		}
 	}
 `;
@@ -803,6 +930,26 @@ export const ComparisonOldWayValue = styled.div`
 	color: #94a3b8;
 	font-weight: 500;
 	font-size: clamp(0.85rem, 1.5vw, 0.95rem);
+	text-align: center;
+	min-width: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	@media (max-width: 767px) {
+		text-align: left;
+		display: flex;
+		gap: 0.5rem;
+		align-items: center;
+		justify-content: flex-start;
+
+		&::before {
+			content: 'Old Way: ';
+			color: #cbd5e1;
+			font-size: 0.85rem;
+			flex-shrink: 0;
+		}
+	}
 `;
 
 // CTA Section

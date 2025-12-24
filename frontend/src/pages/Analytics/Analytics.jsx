@@ -7,6 +7,85 @@ import api from '../../services/api';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
+// Animation Variants
+const dashboardContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.2,
+      staggerChildren: 0.1
+    }
+  }
+};
+
+const cardVariants = {
+  hidden: { opacity: 0, y: 30, scale: 0.9 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 12
+    }
+  },
+  hover: {
+    scale: 1.03,
+    y: -5,
+    boxShadow: '0 25px 50px rgba(59, 130, 246, 0.15)',
+    transition: { duration: 0.3 }
+  }
+};
+
+const chartVariants = {
+  hidden: { opacity: 0, scale: 0.8 },
+  visible: {
+    opacity: 1,
+    scale: 1,
+    transition: {
+      type: 'spring',
+      stiffness: 80,
+      damping: 15,
+      duration: 0.6
+    }
+  }
+};
+
+const statsVariants = {
+  hidden: { opacity: 0, x: -50 },
+  visible: (custom) => ({
+    opacity: 1,
+    x: 0,
+    transition: {
+      type: 'spring',
+      stiffness: 100,
+      damping: 12,
+      delay: custom * 0.1
+    }
+  })
+};
+
+const buttonVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { duration: 0.4, delay: 0.7 }
+  }
+};
+
+const timeRangeButtonVariants = {
+  inactive: { backgroundColor: 'transparent', color: '#64748b' },
+  active: {
+    backgroundColor: '#4f46e5',
+    color: 'white',
+    boxShadow: '0 10px 25px rgba(79, 70, 229, 0.2)'
+  },
+  hover: { scale: 1.05 },
+  tap: { scale: 0.95 }
+};
+
 // Mock data fallback
 const MOCK_DATA = {
   stats: {
@@ -135,174 +214,193 @@ const AnalyticsDashboard = () => {
       </Header>
 
       {/* Stats Cards */}
-      <StatsGrid as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
-        {[
-          { color: 'blue', icon: CheckCircle, value: stats.totalDecisions, label: 'Total Decisions', change: '+12.5% from last week' },
-          { color: 'green', icon: Users, value: stats.activeGroups, label: 'Active Groups', change: '+3 this month' },
-          { color: 'orange', icon: Award, value: `${stats.avgSatisfaction}/10`, label: 'Avg Satisfaction', change: '+0.4 from last week' },
-          { color: 'red', icon: Target, value: `${stats.successRate}%`, label: 'Success Rate', change: '+2.1% from last week' }
-        ].map((stat, index) => (
-          <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
-            <StatCard $color={stat.color}>
-              <StatHeader>
-                <StatIcon $bgColor={stat.color}>
-                  <stat.icon style={{ width: '24px', height: '24px', color: stat.color === 'blue' ? '#2563eb' : stat.color === 'green' ? '#059669' : stat.color === 'orange' ? '#d97706' : '#dc2626' }} />
-                </StatIcon>
-              </StatHeader>
-              <StatValue>{stat.value}</StatValue>
-              <StatLabel>{stat.label}</StatLabel>
-              <StatChange $positive={true}>
-                <TrendingUp style={{ width: '16px', height: '16px' }} />
-                {stat.change}
-              </StatChange>
-            </StatCard>
-          </motion.div>
-        ))}
-      </StatsGrid>
+      <motion.div variants={dashboardContainerVariants} initial="hidden" animate="visible">
+        <StatsGrid as={motion.div}>
+          {[
+            { color: 'blue', icon: CheckCircle, value: stats.totalDecisions, label: 'Total Decisions', change: '+12.5% from last week' },
+            { color: 'green', icon: Users, value: stats.activeGroups, label: 'Active Groups', change: '+3 this month' },
+            { color: 'orange', icon: Award, value: `${stats.avgSatisfaction}/10`, label: 'Avg Satisfaction', change: '+0.4 from last week' },
+            { color: 'red', icon: Target, value: `${stats.successRate}%`, label: 'Success Rate', change: '+2.1% from last week' }
+          ].map((stat, index) => (
+            <motion.div key={index} variants={statsVariants} custom={index} whileHover="hover">
+              <StatCard $color={stat.color}>
+                <StatHeader>
+                  <StatIcon $bgColor={stat.color}>
+                    <stat.icon style={{ width: '24px', height: '24px', color: stat.color === 'blue' ? '#2563eb' : stat.color === 'green' ? '#059669' : stat.color === 'orange' ? '#d97706' : '#dc2626' }} />
+                  </StatIcon>
+                </StatHeader>
+                <StatValue>{stat.value}</StatValue>
+                <StatLabel>{stat.label}</StatLabel>
+                <StatChange $positive={true}>
+                  <TrendingUp style={{ width: '16px', height: '16px' }} />
+                  {stat.change}
+                </StatChange>
+              </StatCard>
+            </motion.div>
+          ))}
+        </StatsGrid>
+      </motion.div>
 
       {/* Charts Row 1 */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
+      <motion.div variants={chartVariants} initial="hidden" animate="visible" transition={{ delay: 0.4 }}>
         <ChartsGrid>
-        {/* Decision Trend */}
-        <ChartCard>
-          <ChartTitle>📈 Decision Activity Trend</ChartTitle>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={decisionTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="date" stroke="#64748b" />
-              <YAxis stroke="#64748b" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px'
-                }} 
-              />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="decisions" 
-                stroke="#3b82f6" 
-                strokeWidth={3}
-                dot={{ fill: '#3b82f6', r: 5 }}
-                name="Total Decisions"
-              />
-              <Line 
-                type="monotone" 
-                dataKey="successful" 
-                stroke="#10b981" 
-                strokeWidth={3}
-                dot={{ fill: '#10b981', r: 5 }}
-                name="Successful"
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        </ChartCard>
+          {/* Decision Trend */}
+          <motion.div whileHover="hover" variants={cardVariants}>
+            <ChartCard>
+              <ChartTitle>📈 Decision Activity Trend</ChartTitle>
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={decisionTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="date" stroke="#64748b" />
+                  <YAxis stroke="#64748b" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="decisions" 
+                    stroke="#3b82f6" 
+                    strokeWidth={3}
+                    dot={{ fill: '#3b82f6', r: 5 }}
+                    name="Total Decisions"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="successful" 
+                    stroke="#10b981" 
+                    strokeWidth={3}
+                    dot={{ fill: '#10b981', r: 5 }}
+                    name="Successful"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </motion.div>
 
-        {/* Category Distribution */}
-        <ChartCard>
-          <ChartTitle>🎯 Decision Categories</ChartTitle>
-          <ResponsiveContainer width="100%" height={300}>
-            <PieChart>
-              <Pie
-                data={categoryDistribution}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                outerRadius={100}
-                fill="#8884d8"
-                dataKey="value"
-              >
-                {categoryDistribution.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      </ChartsGrid>
+          {/* Category Distribution */}
+          <motion.div whileHover="hover" variants={cardVariants}>
+            <ChartCard>
+              <ChartTitle>🎯 Decision Categories</ChartTitle>
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={categoryDistribution}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={100}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {categoryDistribution.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </motion.div>
+        </ChartsGrid>
+      </motion.div>
 
       {/* Charts Row 2 */}
-      <ChartsGrid>
-        {/* Satisfaction Trend */}
-        <ChartCard>
-          <ChartTitle>😊 Satisfaction & Fairness Trends</ChartTitle>
-          <ResponsiveContainer width="100%" height={300}>
-            <AreaChart data={satisfactionTrend}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis dataKey="week" stroke="#64748b" />
-              <YAxis domain={[0, 10]} stroke="#64748b" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px'
-                }} 
-              />
-              <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="satisfaction" 
-                stackId="1"
-                stroke="#8b5cf6" 
-                fill="#8b5cf6"
-                fillOpacity={0.6}
-                name="Satisfaction Score"
-              />
-              <Area 
-                type="monotone" 
-                dataKey="fairness" 
-                stackId="2"
-                stroke="#ec4899" 
-                fill="#ec4899"
-                fillOpacity={0.6}
-                name="Fairness Score"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </ChartCard>
+      <motion.div variants={chartVariants} initial="hidden" animate="visible" transition={{ delay: 0.5 }}>
+        <ChartsGrid>
+          {/* Satisfaction Trend */}
+          <motion.div whileHover="hover" variants={cardVariants}>
+            <ChartCard>
+              <ChartTitle>😊 Satisfaction & Fairness Trends</ChartTitle>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={satisfactionTrend}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis dataKey="week" stroke="#64748b" />
+                  <YAxis domain={[0, 10]} stroke="#64748b" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Legend />
+                  <Area 
+                    type="monotone" 
+                    dataKey="satisfaction" 
+                    stackId="1"
+                    stroke="#8b5cf6" 
+                    fill="#8b5cf6"
+                    fillOpacity={0.6}
+                    name="Satisfaction Score"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="fairness" 
+                    stackId="2"
+                    stroke="#ec4899" 
+                    fill="#ec4899"
+                    fillOpacity={0.6}
+                    name="Fairness Score"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </motion.div>
 
-        {/* Top Categories Bar Chart */}
-        <ChartCard>
-          <ChartTitle>🏆 Top Decision Categories</ChartTitle>
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={topCategories} layout="horizontal">
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-              <XAxis type="number" stroke="#64748b" />
-              <YAxis dataKey="category" type="category" width={120} stroke="#64748b" />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'white', 
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '8px'
-                }} 
-              />
-              <Legend />
-              <Bar dataKey="count" fill="#3b82f6" name="Decision Count" radius={[0, 8, 8, 0]} />
-              <Bar dataKey="avgScore" fill="#10b981" name="Avg Score" radius={[0, 8, 8, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </ChartCard>
-      </ChartsGrid>
+          {/* Top Categories Bar Chart */}
+          <motion.div whileHover="hover" variants={cardVariants}>
+            <ChartCard>
+              <ChartTitle>🏆 Top Decision Categories</ChartTitle>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={topCategories} layout="horizontal">
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                  <XAxis type="number" stroke="#64748b" />
+                  <YAxis dataKey="category" type="category" width={120} stroke="#64748b" />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #e2e8f0',
+                      borderRadius: '8px'
+                    }} 
+                  />
+                  <Legend />
+                  <Bar dataKey="count" fill="#3b82f6" name="Decision Count" radius={[0, 8, 8, 0]} />
+                  <Bar dataKey="avgScore" fill="#10b981" name="Avg Score" radius={[0, 8, 8, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </motion.div>
+        </ChartsGrid>
       </motion.div>
 
       {/* Time Range Selector */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
+      <motion.div variants={buttonVariants} initial="hidden" animate="visible">
         <TimeRangeContainer>
-        {['7days', '30days', '90days', 'all'].map((range) => (
-          <TimeRangeButton
-            key={range}
-            $active={timeRange === range}
-            onClick={() => setTimeRange(range)}
-          >
-            {range === '7days' && 'Last 7 Days'}
-            {range === '30days' && 'Last 30 Days'}
-            {range === '90days' && 'Last 90 Days'}
-            {range === 'all' && 'All Time'}
-          </TimeRangeButton>
-        ))}
+          {['7days', '30days', '90days', 'all'].map((range) => (
+            <motion.div
+              key={range}
+              variants={timeRangeButtonVariants}
+              animate={timeRange === range ? "active" : "inactive"}
+              whileHover="hover"
+              whileTap="tap"
+            >
+              <TimeRangeButton
+                $active={timeRange === range}
+                onClick={() => setTimeRange(range)}
+              >
+                {range === '7days' && 'Last 7 Days'}
+                {range === '30days' && 'Last 30 Days'}
+                {range === '90days' && 'Last 90 Days'}
+                {range === 'all' && 'All Time'}
+              </TimeRangeButton>
+            </motion.div>
+          ))}
         </TimeRangeContainer>
       </motion.div>
     </DashboardContainer>

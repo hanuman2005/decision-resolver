@@ -3,6 +3,87 @@ import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, DollarSign, Utensils, Loader, CheckCircle, X, Lightbulb } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
+
+// ========================================
+// ANIMATION VARIANTS
+// ========================================
+const aiContainerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      when: "beforeChildren",
+      staggerChildren: 0.12,
+      delayChildren: 0.2
+    }
+  }
+};
+
+const suggestionCardVariants = {
+  hidden: { opacity: 0, y: 50, rotateX: -15 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    rotateX: 0,
+    transition: {
+      type: "spring",
+      stiffness: 80,
+      damping: 12
+    }
+  },
+  hover: {
+    scale: 1.02,
+    y: -5,
+    boxShadow: "0 25px 50px rgba(79, 70, 229, 0.2)",
+    transition: { duration: 0.3 }
+  },
+  tap: {
+    scale: 0.98
+  }
+};
+
+const badgeVariants = {
+  hidden: { scale: 0, rotate: -180 },
+  visible: {
+    scale: 1,
+    rotate: 0,
+    transition: {
+      type: "spring",
+      stiffness: 200,
+      damping: 15
+    }
+  },
+  hover: {
+    scale: 1.1,
+    rotate: 5,
+    transition: { duration: 0.2 }
+  }
+};
+
+const buttonPulseVariants = {
+  idle: { scale: 1 },
+  pulse: {
+    scale: [1, 1.05, 1],
+    transition: {
+      duration: 2,
+      repeat: Infinity,
+      ease: "easeInOut"
+    }
+  }
+};
+
+const confidenceBarVariants = {
+  hidden: { scaleX: 0, originX: 0 },
+  visible: (confidence) => ({
+    scaleX: confidence / 100,
+    transition: {
+      duration: 1,
+      ease: "easeOut",
+      delay: 0.2
+    }
+  })
+};
+
 import {
   Container,
   Header,
@@ -217,14 +298,16 @@ const AISuggestions = () => {
       {/* Suggestions List or Empty State */}
       {suggestions.length > 0 ? (
         <>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+          <motion.div variants={aiContainerVariants} initial="hidden" animate="visible">
             <SuggestionsContainer>
               {suggestions.map((suggestion, idx) => (
-                <motion.div key={suggestion.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                <motion.div key={suggestion.id} variants={suggestionCardVariants} whileHover="hover" whileTap="tap">
                   <SuggestionCard
                     $selected={selectedSuggestions.includes(suggestion.id)}
                   >
-                <ConfidenceBar $confidence={suggestion.confidence} />
+                <motion.div custom={suggestion.confidence} variants={confidenceBarVariants} initial="hidden" animate="visible">
+                  <ConfidenceBar $confidence={suggestion.confidence} />
+                </motion.div>
                 
                 <SuggestionContent>
                   <SuggestionHeader>
@@ -233,9 +316,11 @@ const AISuggestions = () => {
                         <SuggestionName>
                           {suggestion.name}
                         </SuggestionName>
-                        <ConfidenceBadge>
-                          {suggestion.confidence}% match
-                        </ConfidenceBadge>
+                        <motion.div variants={badgeVariants} initial="hidden" animate="visible" whileHover="hover">
+                          <ConfidenceBadge>
+                            {suggestion.confidence}% match
+                          </ConfidenceBadge>
+                        </motion.div>
                       </div>
                       <SuggestionReason>
                         <strong style={{ color: '#4f46e5' }}>AI Says:</strong> {suggestion.reason}
@@ -271,11 +356,13 @@ const AISuggestions = () => {
                   {/* Features */}
                   {suggestion.details.features && (
                     <FeaturesContainer>
-                      {suggestion.details.features.map((feature, idx) => (
-                        <FeatureBadge key={idx}>
-                          <CheckCircle />
-                          {feature}
-                        </FeatureBadge>
+                      {suggestion.details.features.map((feature, fidx) => (
+                        <motion.div key={fidx} variants={badgeVariants} initial="hidden" animate="visible" whileHover="hover">
+                          <FeatureBadge>
+                            <CheckCircle />
+                            {feature}
+                          </FeatureBadge>
+                        </motion.div>
                       ))}
                     </FeaturesContainer>
                   )}
@@ -287,13 +374,11 @@ const AISuggestions = () => {
                       <div style={{ flex: 1 }}>
                         <ReasoningTitle style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                           <span>Why AI Recommends This</span>
-                          <span style={{
+                          <motion.span animate={{ rotate: expandedReasoning[suggestion.id] ? 180 : 0 }} transition={{ duration: 0.3 }} style={{
                             display: 'inline-block',
-                            transform: expandedReasoning[suggestion.id] ? 'rotate(180deg)' : 'rotate(0deg)',
-                            transition: 'transform 0.3s ease',
                             fontSize: '1rem',
                             flexShrink: 0
-                          }}>▼</span>
+                          }}>▼</motion.span>
                         </ReasoningTitle>
                         {expandedReasoning[suggestion.id] && (
                           <ReasoningText>
@@ -313,12 +398,12 @@ const AISuggestions = () => {
           {/* Accept Button */}
           {selectedSuggestions.length > 0 && (
             <AcceptButtonContainer>
-              <AcceptButton
-                onClick={acceptSuggestions}
-              >
-                <CheckCircle />
-                Add {selectedSuggestions.length} Selected Suggestion{selectedSuggestions.length !== 1 ? 's' : ''} to Decision
-              </AcceptButton>
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                <AcceptButton onClick={acceptSuggestions}>
+                  <CheckCircle />
+                  Add {selectedSuggestions.length} Selected Suggestion{selectedSuggestions.length !== 1 ? 's' : ''} to Decision
+                </AcceptButton>
+              </motion.div>
             </AcceptButtonContainer>
           )}
         </>
