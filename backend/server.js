@@ -18,6 +18,7 @@ const chatRoutes = require("./routes/chatRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const aiRoutes = require("./routes/aiRoutes");
+const conflictRoutes = require("./routes/conflictRoutes");
 
 /**
  * Initialize Express App
@@ -110,6 +111,7 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/ai", aiRoutes);
+app.use("/api/conflicts", conflictRoutes);
 
 // Welcome route
 app.get("/", (req, res) => {
@@ -140,14 +142,25 @@ const PORT = process.env.PORT || 5000;
 // Create an async IIFE to handle async operations at startup
 (async () => {
   try {
+    console.log("[DEBUG] Connecting to database...");
     await connectDB();
+    console.log("[DEBUG] Database connected");
 
+    console.log("[DEBUG] Starting to listen on port", PORT);
     const server = app.listen(PORT, () => {
+      console.log("[DEBUG] Server listening successfully");
       logger.info(
         `🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`
       );
       logger.info(`📍 API available at http://localhost:${PORT}`);
       logger.info(`🏥 Health check at http://localhost:${PORT}/health`);
+    });
+    console.log("[DEBUG] app.listen() called successfully");
+
+    // Add error handler for server
+    server.on("error", (err) => {
+      console.log("[DEBUG SERVER ERROR]:", err.message);
+      logger.error("Server error:", err);
     });
 
     /**
@@ -189,6 +202,7 @@ const PORT = process.env.PORT || 5000;
       });
     });
   } catch (error) {
+    console.log("[DEBUG ERROR]:", error.message, error.stack);
     logger.error("Failed to start server:", error);
     process.exit(1);
   }

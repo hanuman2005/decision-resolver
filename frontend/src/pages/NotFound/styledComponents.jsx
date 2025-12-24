@@ -37,4 +37,29 @@ export const ErrorText = styled.p`
 `;
 
 export const ButtonRow = styled.div`
-	display: flex;`
+	display: flex;
+	flex-direction: column;
+	gap: 1rem;
+	align-items: center;
+	justify-content: center;
+	flex-wrap: wrap;
+
+	@media (min-width: 768px) {
+		flex-direction: row;
+		gap: 1.5rem;
+	}
+
+	a {
+		width: 100%;
+		@media (min-width: 768px) {
+			width: auto;
+		}
+	}
+
+	button {
+		width: 100%;
+		@media (min-width: 768px) {
+			width: auto;
+		}
+	}
+`;

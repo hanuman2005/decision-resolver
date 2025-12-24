@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ArrowLeft, Plus, X, Target } from 'lucide-react';
 import decisionService from '../../services/decisionService';
 import Card from '../../components/common/Card.jsx';

@@ -103,10 +103,15 @@ export const FlexCol = styled.div`
 `;
 
 export const Title = styled.h2`
-	font-size: 2rem;
+	font-size: clamp(1.5rem, 5vw, 2rem);
 	font-weight: 700;
 	color: #ffffff;
 	margin-bottom: 0.25rem;
+	word-break: break-word;
+
+	@media (max-width: 640px) {
+		word-wrap: break-word;
+	}
 `;
 
 export const SubTitle = styled.p`
@@ -177,6 +182,13 @@ export const WinnerStatsRow = styled.div`
 	gap: 1.5rem;
 	margin-top: 0.5rem;
 	justify-content: center;
+	flex-wrap: wrap;
+
+	@media (max-width: 640px) {
+		gap: 1rem;
+		justify-content: center;
+		width: 100%;
+	}
 `;
 export const AltOptionBox = styled.div`
 	background: rgba(92, 124, 137, 0.2);
@@ -191,16 +203,29 @@ import styled from "styled-components";
 export const HeaderRow = styled.div`
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
 	gap: 1rem;
 	margin-bottom: 0.5rem;
+	flex-wrap: wrap;
+
+	@media (max-width: 640px) {
+		flex-direction: column;
+		align-items: stretch;
+	}
 `;
 export const StatsRow = styled.div`
 	display: flex;
-	gap: 2rem;
-	font-size: 1rem;
+	gap: clamp(1rem, 2vw, 2rem);
+	font-size: 0.95rem;
 	color: #b0d4dd;
 	justify-content: flex-start;
+	flex-wrap: nowrap;
+
+	@media (max-width: 640px) {
+		gap: 0.5rem;
+		font-size: 0.85rem;
+		flex-wrap: nowrap;
+	}
 `;
 export const StatItem = styled.div`
 	display: flex;
@@ -212,7 +237,15 @@ export const StatItem = styled.div`
 export const CollectingRow = styled.div`
 	display: flex;
 	justify-content: space-between;
+	align-items: center;
 	margin-bottom: 0.5rem;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+
+	@media (max-width: 640px) {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 `;
 export const SubmitCol = styled.div`
 	display: flex;
@@ -239,8 +272,14 @@ export const WinnerCard = styled.div`
 
 export const WinnerRow = styled.div`
 	display: flex;
-	align-items: center;
+	align-items: flex-start;
 	gap: 1.5rem;
+
+	@media (max-width: 640px) {
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+	}
 `;
 
 export const WinnerIconCol = styled.div`
@@ -258,13 +297,24 @@ export const WinnerContentCol = styled.div`
 	display: flex;
 	flex-direction: column;
 	gap: 0.75rem;
+	flex: 1;
+
+	@media (max-width: 640px) {
+		width: 100%;
+		align-items: center;
+	}
 `;
 
 export const WinnerTitle = styled.h3`
-	font-size: 1.75rem;
+	font-size: clamp(1.25rem, 4vw, 1.75rem);
 	font-weight: 700;
 	color: #ffffff;
 	margin: 0;
+	word-break: break-word;
+
+	@media (max-width: 640px) {
+		text-align: center;
+	}
 `;
 
 export const WinnerStat = styled.div`
@@ -341,6 +391,13 @@ export const AltRow = styled.div`
 	justify-content: space-between;
 	align-items: center;
 	margin-bottom: 0.5rem;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+
+	@media (max-width: 640px) {
+		flex-direction: column;
+		align-items: flex-start;
+	}
 `;
 
 export const AltName = styled.span`

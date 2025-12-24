@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, DollarSign, Utensils, Loader, CheckCircle, X, Lightbulb } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -58,6 +59,7 @@ const AISuggestions = () => {
   const [selectedSuggestions, setSelectedSuggestions] = useState([]);
   const [decisionType, setDecisionType] = useState('restaurant');
   const [groupData, setGroupData] = useState(null);
+  const [expandedReasoning, setExpandedReasoning] = useState({});
 
   useEffect(() => {
     loadGroupData();
@@ -87,16 +89,17 @@ const AISuggestions = () => {
         groupData
       });
 
-      if (response.data?.suggestions) {
-        setSuggestions(response.data.suggestions);
+      // The API interceptor returns response.data directly
+      const suggestionsData = response.suggestions || response.data?.suggestions || [];
+      
+      if (suggestionsData && suggestionsData.length > 0) {
+        setSuggestions(suggestionsData);
       } else {
-        // If backend returns no data, show empty state
         setSuggestions([]);
       }
     } catch (error) {
       console.error('AI suggestion error:', error);
       setSuggestions([]);
-      // Show empty state instead of alert - user can try again
     } finally {
       setLoading(false);
     }
@@ -107,7 +110,12 @@ const AISuggestions = () => {
       prev.includes(id) ? prev.filter(sid => sid !== id) : [...prev, id]
     );
   };
-
+  const toggleReasoning = (suggestionId) => {
+    setExpandedReasoning(prev => ({
+      ...prev,
+      [suggestionId]: !prev[suggestionId]
+    }));
+  };
   const acceptSuggestions = () => {
     const accepted = suggestions.filter(s => selectedSuggestions.includes(s.id));
     alert(`✅ Added ${accepted.length} suggestions to your decision!\n\n${accepted.map(s => `• ${s.name}`).join('\n')}`);
@@ -153,7 +161,7 @@ const AISuggestions = () => {
         <InsightCard>
           <InsightLabel>Decisions</InsightLabel>
           <InsightValue>
-            {groupData.history?.length || 0} past
+            {groupData.totalDecisions || 0} past
           </InsightValue>
         </InsightCard>
       </InsightsGrid>
@@ -209,12 +217,13 @@ const AISuggestions = () => {
       {/* Suggestions List or Empty State */}
       {suggestions.length > 0 ? (
         <>
-          <SuggestionsContainer>
-            {suggestions.map((suggestion) => (
-              <SuggestionCard
-                key={suggestion.id}
-                $selected={selectedSuggestions.includes(suggestion.id)}
-              >
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+            <SuggestionsContainer>
+              {suggestions.map((suggestion, idx) => (
+                <motion.div key={suggestion.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                  <SuggestionCard
+                    $selected={selectedSuggestions.includes(suggestion.id)}
+                  >
                 <ConfidenceBar $confidence={suggestion.confidence} />
                 
                 <SuggestionContent>
@@ -272,23 +281,34 @@ const AISuggestions = () => {
                   )}
 
                   {/* AI Reasoning */}
-                  <ReasoningBox>
+                  <ReasoningBox onClick={() => toggleReasoning(suggestion.id)} style={{ cursor: 'pointer' }}>
                     <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
                       <TrendingUp style={{ width: '1.25rem', height: '1.25rem', flexShrink: 0, marginTop: '0.125rem' }} />
-                      <div>
-                        <ReasoningTitle>
-                          Why AI Recommends This
+                      <div style={{ flex: 1 }}>
+                        <ReasoningTitle style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span>Why AI Recommends This</span>
+                          <span style={{
+                            display: 'inline-block',
+                            transform: expandedReasoning[suggestion.id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                            transition: 'transform 0.3s ease',
+                            fontSize: '1rem',
+                            flexShrink: 0
+                          }}>▼</span>
                         </ReasoningTitle>
-                        <ReasoningText>
-                          {suggestion.aiReasoning}
-                        </ReasoningText>
+                        {expandedReasoning[suggestion.id] && (
+                          <ReasoningText>
+                            {suggestion.reason || suggestion.aiReasoning}
+                          </ReasoningText>
+                        )}
                       </div>
                     </div>
                   </ReasoningBox>
                 </SuggestionContent>
-              </SuggestionCard>
-            ))}
-          </SuggestionsContainer>
+                  </SuggestionCard>
+                </motion.div>
+              ))}
+            </SuggestionsContainer>
+          </motion.div>
 
           {/* Accept Button */}
           {selectedSuggestions.length > 0 && (

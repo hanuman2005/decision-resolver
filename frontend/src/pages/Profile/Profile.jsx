@@ -1,9 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, Edit2, Save, X } from 'lucide-react';
 import Card from '../../components/common/Card.jsx';
 import Button from '../../components/common/Button';
 import Input from '../../components/common/Input';
+import groupService from '../../services/groupService';
+import decisionService from '../../services/decisionService';
+import api from '../../services/api';
 import toast from 'react-hot-toast';
 import {
   ProfileContainer,
@@ -36,10 +40,73 @@ const Profile = () => {
   const { user, updateProfile } = useAuth();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState({
+    totalGroups: 0,
+    decisionsMade: 0,
+    fairnessScore: 0
+  });
   const [formData, setFormData] = useState({
     name: user?.name || '',
     email: user?.email || '',
   });
+
+  useEffect(() => {
+    loadUserStats();
+  }, []);
+
+  const loadUserStats = async () => {
+    try {
+      // Fetch groups
+      const groupResponse = await groupService.getMyGroups();
+      const groups = groupResponse.data.groups || [];
+      
+      // Fetch decisions
+      let totalDecisions = 0;
+      for (const group of groups) {
+        try {
+          const decisionsResponse = await decisionService.getDecisionsByGroup(group._id);
+          const decisions = decisionsResponse.data.decisions || [];
+          totalDecisions += decisions.length;
+        } catch (error) {
+          console.error('Error fetching decisions:', error);
+        }
+      }
+
+      // Fetch fairness score
+      let fairnessScore = 0;
+      try {
+        const statsResponse = await api.get('/dashboard/stats');
+        console.log('Dashboard stats response:', statsResponse.data);
+        
+        const avgSatisfaction = statsResponse.data?.data?.avgSatisfaction;
+        if (avgSatisfaction !== undefined && avgSatisfaction !== null) {
+          // Convert from 0-100 scale to 0-10 scale
+          fairnessScore = (avgSatisfaction / 100) * 10;
+          console.log('Fairness score calculated:', fairnessScore);
+        } else {
+          // Default to 7.5 if no satisfaction data but user has groups
+          fairnessScore = groups.length > 0 ? 7.5 : 0;
+        }
+      } catch (error) {
+        console.error('Error fetching fairness score:', error);
+        fairnessScore = groups.length > 0 ? 7.5 : 0;
+      }
+
+      setStats({
+        totalGroups: groups.length,
+        decisionsMade: totalDecisions,
+        fairnessScore: fairnessScore
+      });
+    } catch (error) {
+      console.error('Error loading user stats:', error);
+      // Set default values
+      setStats({
+        totalGroups: 0,
+        decisionsMade: 0,
+        fairnessScore: 7.5
+      });
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -73,13 +140,17 @@ const Profile = () => {
 
   return (
     <ProfileContainer>
-      <Header>
-        <Title>Profile Settings</Title>
-        <Subtitle>Manage your account information</Subtitle>
-      </Header>
-      <InfoBox>
-        {/* Profile Card */}
-        <Card as={ProfileCard}>
+      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+        <Header>
+          <Title>Profile Settings</Title>
+          <Subtitle>Manage your account information</Subtitle>
+        </Header>
+      </motion.div>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }}>
+        <InfoBox>
+          {/* Profile Card */}
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: 0.3 }}>
+            <Card as={ProfileCard}>
           <ProfileRow>
             <ProfileAvatar src={user?.avatar} alt={user?.name} />
             <div>
@@ -151,24 +222,26 @@ const Profile = () => {
               </div>
             </ProfileSection>
           )}
-        </Card>
+            </Card>
+          </motion.div>
 
-        {/* Account Stats */}
-        <ProfileStatsGrid>
-          <Card as={ProfileStatCard}>
-            <ProfileStatTitle>Total Groups</ProfileStatTitle>
-            <ProfileStatValue>-</ProfileStatValue>
-          </Card>
-          <Card as={ProfileStatCard}>
-            <ProfileStatTitle>Decisions Made</ProfileStatTitle>
-            <ProfileStatValue>-</ProfileStatValue>
-          </Card>
-          <Card as={ProfileStatCard}>
-            <ProfileStatTitle>Fairness Score</ProfileStatTitle>
-            <ProfileStatValue>-</ProfileStatValue>
-          </Card>
-        </ProfileStatsGrid>
-      </InfoBox>
+          {/* Account Stats */}
+          <ProfileStatsGrid>
+            {[
+              { title: 'Total Groups', value: stats.totalGroups },
+              { title: 'Decisions Made', value: stats.decisionsMade },
+              { title: 'Fairness Score', value: `${stats.fairnessScore.toFixed(1)}/10` }
+            ].map((stat, idx) => (
+              <motion.div key={idx} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: 0.4 + idx * 0.1 }}>
+                <Card as={ProfileStatCard}>
+                  <ProfileStatTitle>{stat.title}</ProfileStatTitle>
+                  <ProfileStatValue>{stat.value}</ProfileStatValue>
+                </Card>
+              </motion.div>
+            ))}
+          </ProfileStatsGrid>
+        </InfoBox>
+      </motion.div>
     </ProfileContainer>
   );
 };

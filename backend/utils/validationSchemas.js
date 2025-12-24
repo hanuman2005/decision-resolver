@@ -140,23 +140,25 @@ const decisionSchemas = {
     }),
 
     location: Joi.object({
-      latitude: Joi.number().min(-90).max(90).required(),
-      longitude: Joi.number().min(-180).max(180).required(),
-      maxDistance: Joi.number().min(0).required(),
+      latitude: Joi.number().min(-90).max(90),
+      longitude: Joi.number().min(-180).max(180),
+      maxDistance: Joi.number().min(0),
       weight: Joi.number().min(0).max(1).default(0.6),
-    }),
+    }).allow(null),
 
-    timeAvailability: Joi.array().items(
-      Joi.object({
-        date: Joi.date().required(),
-        startTime: Joi.string()
-          .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-          .required(),
-        endTime: Joi.string()
-          .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
-          .required(),
-      })
-    ),
+    timeAvailability: Joi.array()
+      .items(
+        Joi.object({
+          date: Joi.date().required(),
+          startTime: Joi.string()
+            .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
+            .required(),
+          endTime: Joi.string()
+            .pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/)
+            .required(),
+        })
+      )
+      .allow(null),
 
     dietaryRequirements: Joi.array().items(
       Joi.string().valid(...DIETARY_RESTRICTIONS)

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
 	Users, ArrowRight, CheckCircle,
 	Star, Coffee, Film, MapPin, Calendar, Globe,
@@ -291,22 +292,22 @@ const Home = () => {
 
 			{/* Benefits Section */}
 			<BenefitsSection>
-				<div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 2rem)' }}>
-					<BenefitsGrid>
-						<BenefitCard>
-							<div>10x Faster</div>
-							<div>Than endless debates</div>
-						</BenefitCard>
-						<BenefitCard>
-							<div>100% Fair</div>
-							<div>Everyone's voice matters</div>
-						</BenefitCard>
-						<BenefitCard>
-							<div>0 Arguments</div>
-							<div>Transparent AI decisions</div>
-						</BenefitCard>
-					</BenefitsGrid>
-				</div>
+			<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.2 }} style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 clamp(1rem, 3vw, 2rem)' }}>
+				<BenefitsGrid>
+					{[
+						{ number: '10x Faster', desc: 'Than endless debates' },
+						{ number: '100% Fair', desc: 'Algorithm-driven decisions' },
+						{ number: 'Crystal Clear', desc: 'Transparent reasoning' }
+					].map((benefit, idx) => (
+						<motion.div key={idx} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4, delay: 0.3 + idx * 0.1 }}>
+							<BenefitCard>
+								<div>{benefit.number}</div>
+								<div>{benefit.desc}</div>
+							</BenefitCard>
+						</motion.div>
+					))}
+				</BenefitsGrid>
+			</motion.div>
 			</BenefitsSection>
 
 			{/* Features Grid */}

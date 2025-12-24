@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import {
   GroupsContainer,
   MainContent,
@@ -125,38 +126,39 @@ const Groups = () => {
         ) : (
           <>
             <EmptyTextCount>Showing {filteredGroups.length} of {groups.length} groups</EmptyTextCount>
-            <GroupsGrid>
-              {filteredGroups.map((group) => (
-                <Card
-                  key={group._id}
-                  hover
-                  onClick={() => navigate(`/groups/${group._id}`)}
-                  as={GroupCard}
-                >
-                  <GroupCardHeader>
-                    <GroupCardInfo>
-                      <GroupTitle>{group.name}</GroupTitle>
-                      <GroupDesc>{group.description || 'No description provided'}</GroupDesc>
-                    </GroupCardInfo>
-                    <GroupCardAvatar>
-                      <Users />
-                    </GroupCardAvatar>
-                  </GroupCardHeader>
-                  <GroupCardMeta>
-                    <GroupMeta>
-                      <Users />
-                      <span>{group.memberCount} members</span>
-                    </GroupMeta>
-                    <GroupMeta>
-                      <Calendar />
-                      <span>{new Date(group.createdAt).toLocaleDateString()}</span>
-                    </GroupMeta>
-                  </GroupCardMeta>
-                  <GroupCardFooter>
-                    <GroupCardInviteLabel>Invite Code:</GroupCardInviteLabel>
-                    <GroupCode>{group.inviteCode}</GroupCode>
-                  </GroupCardFooter>
-                </Card>
+            <GroupsGrid as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              {filteredGroups.map((group, index) => (
+                <motion.div key={group._id} initial={{ opacity: 0, y: 20, scale: 0.95 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
+                  <Card
+                    hover
+                    onClick={() => navigate(`/groups/${group._id}`)}
+                    as={GroupCard}
+                  >
+                    <GroupCardHeader>
+                      <GroupCardInfo>
+                        <GroupTitle>{group.name}</GroupTitle>
+                        <GroupDesc>{group.description || 'No description provided'}</GroupDesc>
+                      </GroupCardInfo>
+                      <GroupCardAvatar>
+                        <Users />
+                      </GroupCardAvatar>
+                    </GroupCardHeader>
+                    <GroupCardMeta>
+                      <GroupMeta>
+                        <Users />
+                        <span>{group.memberCount} members</span>
+                      </GroupMeta>
+                      <GroupMeta>
+                        <Calendar />
+                        <span>{new Date(group.createdAt).toLocaleDateString()}</span>
+                      </GroupMeta>
+                    </GroupCardMeta>
+                    <GroupCardFooter>
+                      <GroupCardInviteLabel>Invite Code:</GroupCardInviteLabel>
+                      <GroupCode>{group.inviteCode}</GroupCode>
+                    </GroupCardFooter>
+                  </Card>
+                </motion.div>
               ))}
             </GroupsGrid>
           </>

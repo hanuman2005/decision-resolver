@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { ArrowLeft, CheckCircle, Clock, Users, TrendingUp, Award, Info } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import decisionService from '../../services/decisionService';
@@ -111,7 +112,8 @@ import {
         return null;
       }
       const { status, finalDecision, constraints, groupId } = decision;
-      const totalMembers = groupId?.memberCount || constraints?.length || 0;
+      // Always use groupId.memberCount as the total, fall back to constraints length if not available
+      const totalMembers = groupId?.memberCount || groupId?.members?.length || constraints?.length || 0;
       const submittedCount = constraints?.length || 0;
 
       return (
@@ -164,6 +166,17 @@ import {
           {/* Decision Result */}
           {status === 'completed' && finalDecision && (
             <>
+              {/* Submission Status for Completed Decision */}
+              <Section>
+                <CollectingRow>
+                  <Label>Submissions Completed</Label>
+                  <Value>{submittedCount} / {totalMembers}</Value>
+                </CollectingRow>
+                <ProgressBar>
+                  <ProgressFill style={{ width: `${(submittedCount / totalMembers) * 100}%` }} />
+                </ProgressBar>
+              </Section>
+
               {/* Winner */}
               <WinnerCard>
                 <WinnerRow>
@@ -264,26 +277,34 @@ import {
 
           {/* PDF Export - Show when decision is completed */}
           {status === 'completed' && finalDecision && (
-            <PDFExport 
-              decision={{
-                title: decision.title,
-                category: decision.category,
-                result: finalDecision.selectedOption.name,
-                score: finalDecision.algorithmScore,
-                reasoning: finalDecision.reasoning.join(', '),
-                alternatives: finalDecision.alternatives || [],
-                constraints: constraints || [],
-                completedAt: decision.completedAt || new Date().toISOString(),
-                id: decision._id
-              }}
-              groupInfo={{
-                name: groupId?.name || 'Group',
-                memberCount: totalMembers,
-                totalDecisions: groupId?.totalDecisions || 0,
-                avgSatisfaction: 8.5
-              }}
-              showPreview={false}
-            />
+            <div className="mt-8">
+              <PDFExport 
+                decision={{
+                  title: decision.title,
+                  category: decision.category,
+                  result: finalDecision.selectedOption.name,
+                  score: finalDecision.algorithmScore,
+                  reasoning: finalDecision.reasoning.join(', '),
+                  alternatives: finalDecision.alternatives || [],
+                  constraints: constraints?.map(c => ({
+                    member: c.userId?.name || 'Unknown Member',
+                    budget: c.budget ? `$${c.budget.min || 0} - $${c.budget.max || 0}` : 'N/A',
+                    preferences: c.preferences?.join(', ') || 'N/A',
+                    mustHaves: c.mustHaves?.join(', ') || 'N/A',
+                    satisfied: true
+                  })) || [],
+                  completedAt: decision.completedAt || new Date().toISOString(),
+                  id: decision._id
+                }}
+                groupInfo={{
+                  name: groupId?.name || 'Group',
+                  memberCount: totalMembers,
+                  totalDecisions: groupId?.decisions?.length || 1,
+                  avgSatisfaction: finalDecision.satisfactionRate ? (finalDecision.satisfactionRate * 10).toFixed(1) : 8.5
+                }}
+                showPreview={false}
+              />
+            </div>
           )}
           </DecisionContentWrapper>
         </DecisionDetailContainer>

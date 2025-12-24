@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
 import Input from '../../components/common/Input';
@@ -76,67 +77,81 @@ const Login = () => {
 
   return (
     <LoginContainer>
-      <LoginWrapper>
+      <LoginWrapper as={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         {/* Header */}
-        <LoginHeader>
-          <LoginIcon>
-            <Lock />
-          </LoginIcon>
-          <LoginTitle>Welcome Back</LoginTitle>
-          <LoginSubtitle>Sign in to continue making smart group decisions</LoginSubtitle>
-        </LoginHeader>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+          <LoginHeader>
+            <LoginIcon>
+              <Lock />
+            </LoginIcon>
+            <LoginTitle>Welcome Back</LoginTitle>
+            <LoginSubtitle>Sign in to continue making smart group decisions</LoginSubtitle>
+          </LoginHeader>
+        </motion.div>
         {/* Login Form */}
-        <Card>
-          <form onSubmit={handleSubmit}>
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-              icon={Mail}
-              required
-            />
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="••••••••"
-              icon={Lock}
-              required
-            />
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              fullWidth
-            >
-              Sign In
-              <ArrowRight />
-            </Button>
-          </form>
-          {/* Divider */}
-          <>
-            <LoginDivider />
-            <span style={{display: 'block', textAlign: 'center', color: '#888', margin: '1rem 0'}}>
-              New to Decision Resolver?
-            </span>
-          </>
-          {/* Register Link */}
-          <LoginRegisterLink>
-            <Link to="/register">Create an account</Link>
-          </LoginRegisterLink>
-        </Card>
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          <Card>
+            <form onSubmit={handleSubmit}>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.3 }}>
+                <Input
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  placeholder="you@example.com"
+                  icon={Mail}
+                  required
+                />
+              </motion.div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.4 }}>
+                <Input
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={errors.password}
+                  placeholder="••••••••"
+                  icon={Lock}
+                  required
+                />
+              </motion.div>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  loading={loading}
+                  fullWidth
+                >
+                  Sign In
+                  <ArrowRight />
+                </Button>
+              </motion.div>
+            </form>
+            {/* Divider */}
+            <>
+              <LoginDivider />
+              <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.6 }} style={{display: 'block', textAlign: 'center', color: '#888', margin: '1rem 0'}}>
+                New to Decision Resolver?
+              </motion.span>
+            </>
+            {/* Register Link */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.7 }}>
+              <LoginRegisterLink>
+                <Link to="/register">Create an account</Link>
+              </LoginRegisterLink>
+            </motion.div>
+          </Card>
+        </motion.div>
         {/* Demo Credentials */}
-        <DemoCredentials>
-          <p>Demo: alice@example.com / Test123!@#</p>
-        </DemoCredentials>
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.8 }}>
+          <DemoCredentials>
+            <p>Demo: alice@example.com / Test123!@#</p>
+          </DemoCredentials>
+        </motion.div>
       </LoginWrapper>
     </LoginContainer>
   );

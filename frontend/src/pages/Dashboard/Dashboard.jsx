@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { 
   Users, Plus, Clock, CheckCircle, 
   BarChart3, MessageCircle, Sparkles,
@@ -77,6 +78,8 @@ const Dashboard = () => {
   });
   const [recentActivity, setRecentActivity] = useState([]);
   const [upcomingDecisions, setUpcomingDecisions] = useState([]);
+  const [showAllActivity, setShowAllActivity] = useState(false);
+  const [allActivity, setAllActivity] = useState([]);
 
   useEffect(() => {
     loadDashboardData();
@@ -92,15 +95,18 @@ const Dashboard = () => {
       // Fetch dashboard stats from backend
       try {
         const statsResponse = await api.get('/dashboard/stats');
-        if (statsResponse.data) {
+        const statsData = statsResponse.data?.data || statsResponse.data || {};
+        
+        if (statsData && statsData.totalGroups !== undefined) {
           setStats({
-            totalGroups: statsResponse.data.totalGroups || userGroups.length,
-            activeDecisions: statsResponse.data.activeDecisions || 0,
-            completedDecisions: statsResponse.data.completedDecisions || 0,
-            avgSatisfaction: statsResponse.data.avgSatisfaction || 0,
-            successRate: statsResponse.data.successRate || 0
+            totalGroups: statsData.totalGroups,
+            activeDecisions: statsData.activeDecisions || 0,
+            completedDecisions: statsData.completedDecisions || 0,
+            avgSatisfaction: statsData.avgSatisfaction || 0,
+            successRate: statsData.successRate || 0
           });
         } else {
+          // Fallback to basic stats
           setStats({
             totalGroups: userGroups.length,
             activeDecisions: 0,
@@ -110,6 +116,7 @@ const Dashboard = () => {
           });
         }
       } catch (error) {
+        console.error('Stats fetch error:', error);
         // Fallback to basic stats from groups
         setStats({
           totalGroups: userGroups.length,
@@ -123,24 +130,43 @@ const Dashboard = () => {
       // Fetch recent activity from backend
       try {
         const activityResponse = await api.get('/dashboard/activity');
-        if (activityResponse.data?.activity && Array.isArray(activityResponse.data.activity)) {
-          setRecentActivity(activityResponse.data.activity);
+        const activityData = activityResponse.data?.data?.activity || activityResponse.data?.activity || [];
+        
+        if (Array.isArray(activityData) && activityData.length > 0) {
+          // Map icon names to actual icons
+          const iconMap = {
+            MessageCircle: MessageCircle,
+            CheckCircle: CheckCircle,
+            Users: Users,
+            Clock: Clock
+          };
+          
+          const formattedActivity = activityData.map(item => ({
+            ...item,
+            icon: iconMap[item.icon] || MessageCircle
+          }));
+          setRecentActivity(formattedActivity.slice(0, 5)); // Show only 5 in dashboard
+          setAllActivity(formattedActivity); // Store all for "View All"
         } else {
           setRecentActivity([]);
         }
       } catch (error) {
+        console.error('Activity fetch error:', error);
         setRecentActivity([]);
       }
 
       // Fetch upcoming decisions from backend
       try {
         const decisionsResponse = await api.get('/dashboard/decisions');
-        if (decisionsResponse.data?.decisions && Array.isArray(decisionsResponse.data.decisions)) {
-          setUpcomingDecisions(decisionsResponse.data.decisions);
+        const decisionsData = decisionsResponse.data?.data?.decisions || decisionsResponse.data?.decisions || [];
+        
+        if (Array.isArray(decisionsData) && decisionsData.length > 0) {
+          setUpcomingDecisions(decisionsData);
         } else {
           setUpcomingDecisions([]);
         }
       } catch (error) {
+        console.error('Decisions fetch error:', error);
         setUpcomingDecisions([]);
       }
     } catch (error) {
@@ -178,73 +204,50 @@ const Dashboard = () => {
         </Header>
 
         {/* Stats Grid */}
-        <StatsGrid>
-          <StatCard $borderColor="#4f46e5">
-            <StatIcon $bgColor="rgba(79, 70, 229, 0.2)" $iconColor="#4f46e5">
-              <Users />
-            </StatIcon>
-            <StatValue>{stats.totalGroups}</StatValue>
-            <StatLabel>Total Groups</StatLabel>
-          </StatCard>
-
-          <StatCard $borderColor="#f59e0b">
-            <StatIcon $bgColor="rgba(245, 158, 11, 0.2)" $iconColor="#f59e0b">
-              <Clock />
-            </StatIcon>
-            <StatValue>{stats.activeDecisions}</StatValue>
-            <StatLabel>Active Now</StatLabel>
-          </StatCard>
-
-          <StatCard $borderColor="#10b981">
-            <StatIcon $bgColor="rgba(16, 185, 129, 0.2)" $iconColor="#10b981">
-              <CheckCircle />
-            </StatIcon>
-            <StatValue>{stats.completedDecisions}</StatValue>
-            <StatLabel>Completed</StatLabel>
-          </StatCard>
-
-          <StatCard $borderColor="#a855f7">
-            <StatIcon $bgColor="rgba(168, 85, 247, 0.2)" $iconColor="#a855f7">
-              <Award />
-            </StatIcon>
-            <StatValue>{stats.avgSatisfaction}/10</StatValue>
-            <StatLabel>Avg Satisfaction</StatLabel>
-          </StatCard>
-
-          <StatCard $borderColor="#06b6d4">
-            <StatIcon $bgColor="rgba(6, 182, 212, 0.2)" $iconColor="#06b6d4">
-              <Target />
-            </StatIcon>
-            <StatValue>{stats.successRate}%</StatValue>
-            <StatLabel>Success Rate</StatLabel>
-          </StatCard>
+        <StatsGrid as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+          {[
+            { borderColor: "#4f46e5", bgColor: "rgba(79, 70, 229, 0.2)", iconColor: "#4f46e5", Icon: Users, value: stats.totalGroups, label: "Total Groups" },
+            { borderColor: "#f59e0b", bgColor: "rgba(245, 158, 11, 0.2)", iconColor: "#f59e0b", Icon: Clock, value: stats.activeDecisions, label: "Active Now" },
+            { borderColor: "#10b981", bgColor: "rgba(16, 185, 129, 0.2)", iconColor: "#10b981", Icon: CheckCircle, value: stats.completedDecisions, label: "Completed" },
+            { borderColor: "#a855f7", bgColor: "rgba(168, 85, 247, 0.2)", iconColor: "#a855f7", Icon: Award, value: stats.avgSatisfaction, label: "Avg Satisfaction", suffix: "/10" },
+            { borderColor: "#06b6d4", bgColor: "rgba(6, 182, 212, 0.2)", iconColor: "#06b6d4", Icon: Target, value: stats.successRate, label: "Success Rate", suffix: "%" }
+          ].map((stat, index) => (
+            <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+              <StatCard $borderColor={stat.borderColor}>
+                <StatIcon $bgColor={stat.bgColor} $iconColor={stat.iconColor}>
+                  <stat.Icon />
+                </StatIcon>
+                <StatValue>{stat.value}{stat.suffix || ''}</StatValue>
+                <StatLabel>{stat.label}</StatLabel>
+              </StatCard>
+            </motion.div>
+          ))}
         </StatsGrid>
 
         {/* Quick Actions */}
-        <QuickActionsSection>
-          <SectionTitle>
-            <Zap />
-            Quick Actions
-          </SectionTitle>
-          <ActionsGrid>
-            <ActionButton to="/groups/create">
-              <Plus />
-              Create Group
-            </ActionButton>
-            <ActionButton to="/groups/join">
-              <Users />
-              Join Group
-            </ActionButton>
-            <ActionButton to="/analytics">
-              <BarChart3 />
-              View Analytics
-            </ActionButton>
-            <ActionButton to="/templates">
-              <Sparkles />
-              Use Template
-            </ActionButton>
-          </ActionsGrid>
-        </QuickActionsSection>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+          <QuickActionsSection>
+            <SectionTitle>
+              <Zap />
+              Quick Actions
+            </SectionTitle>
+            <ActionsGrid as={motion.div} variants={{ container: { staggerChildren: 0.1 } }} initial="hidden" animate="visible">
+              {[
+                { to: "/groups/create", Icon: Plus, label: "Create Group" },
+                { to: "/groups/join", Icon: Users, label: "Join Group" },
+                { to: "/analytics", Icon: BarChart3, label: "View Analytics" },
+                { to: "/decisions/templates", Icon: Sparkles, label: "Use Template" }
+              ].map((action, index) => (
+                <motion.div key={index} variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
+                  <ActionButton to={action.to}>
+                    <action.Icon />
+                    {action.label}
+                  </ActionButton>
+                </motion.div>
+              ))}
+            </ActionsGrid>
+          </QuickActionsSection>
+        </motion.div>
 
         {/* Main Content Grid */}
         <MainContentGrid>
@@ -254,24 +257,36 @@ const Dashboard = () => {
               <SectionTitle>Recent Activity</SectionTitle>
             </SectionHeader>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {recentActivity.map((activity) => {
-                const Icon = activity.icon;
-                return (
-                  <ActivityItem key={activity.id}>
-                    <ActivityIcon>
-                      <Icon />
-                    </ActivityIcon>
-                    <ActivityContent>
-                      <ActivityText>{activity.action}</ActivityText>
-                      <ActivityMeta>
-                        {activity.group} • {activity.time}
-                      </ActivityMeta>
-                    </ActivityContent>
-                  </ActivityItem>
-                );
-              })}
+              {(showAllActivity ? allActivity : recentActivity).length > 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                  {(showAllActivity ? allActivity : recentActivity).map((activity, index) => {
+                    const Icon = activity.icon;
+                    return (
+                      <motion.div key={activity.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+                        <ActivityItem>
+                          <ActivityIcon>
+                            <Icon />
+                          </ActivityIcon>
+                          <ActivityContent>
+                            <ActivityText>{activity.action}</ActivityText>
+                            <ActivityMeta>
+                              {activity.group} • {activity.time}
+                            </ActivityMeta>
+                          </ActivityContent>
+                        </ActivityItem>
+                      </motion.div>
+                    );
+                  })}
+                </motion.div>
+              ) : (
+                <ActivityText style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem 0' }}>
+                  No recent activity yet. Start making decisions!
+                </ActivityText>
+              )}
             </div>
-            <ViewMoreButton>View All Activity →</ViewMoreButton>
+            <ViewMoreButton onClick={() => setShowAllActivity(!showAllActivity)}>
+              {showAllActivity ? 'Show Less Activity ↑' : 'View All Activity →'}
+            </ViewMoreButton>
           </Section>
 
           {/* Upcoming Decisions */}
@@ -280,18 +295,28 @@ const Dashboard = () => {
               <SectionTitle>Upcoming</SectionTitle>
             </SectionHeader>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {upcomingDecisions.map((decision) => (
-                <DecisionCard key={decision.id}>
-                  <DecisionTitle>{decision.title}</DecisionTitle>
-                  <DecisionGroup>{decision.group}</DecisionGroup>
-                  <DecisionMeta>
-                    <DecisionDeadline>Due in {decision.deadline}</DecisionDeadline>
-                    <DecisionPending>{decision.pending} pending</DecisionPending>
-                  </DecisionMeta>
-                </DecisionCard>
-              ))}
+              {upcomingDecisions.length > 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+                  {upcomingDecisions.map((decision, index) => (
+                    <motion.div key={decision.id} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: index * 0.05 }}>
+                      <DecisionCard>
+                        <DecisionTitle>{decision.title}</DecisionTitle>
+                        <DecisionGroup>{decision.group}</DecisionGroup>
+                        <DecisionMeta>
+                          <DecisionDeadline>Due in {decision.deadline}</DecisionDeadline>
+                          <DecisionPending>{decision.pending} pending</DecisionPending>
+                        </DecisionMeta>
+                      </DecisionCard>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : (
+                <div style={{ textAlign: 'center', color: '#94a3b8', padding: '2rem 0' }}>
+                  No upcoming decisions. Create one to get started!
+                </div>
+              )}
             </div>
-            <Link to="/decisions" style={{ textDecoration: 'none' }}>
+            <Link to="/groups" style={{ textDecoration: 'none' }}>
               <button style={{
                 width: '100%',
                 marginTop: '1rem',
@@ -343,9 +368,10 @@ const Dashboard = () => {
               </CreateButton>
             </EmptyState>
           ) : (
-            <GroupsGrid>
-              {groups.slice(0, 6).map((group) => (
-                <GroupCard key={group._id} to={`/groups/${group._id}`}>
+            <GroupsGrid as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
+              {groups.slice(0, 6).map((group, index) => (
+                <motion.div key={group._id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: index * 0.1 }}>
+                  <GroupCard to={`/groups/${group._id}`}>
                   <GroupHeader>
                     <GroupIcon>
                       <Users />
@@ -361,7 +387,8 @@ const Dashboard = () => {
                     </GroupMembers>
                     <GroupViewLink>View →</GroupViewLink>
                   </GroupFooter>
-                </GroupCard>
+                  </GroupCard>
+                </motion.div>
               ))}
             </GroupsGrid>
           )}
@@ -383,7 +410,7 @@ const Dashboard = () => {
             </FeatureLink>
           </FeatureCard>
 
-          <FeatureCard to="/templates" $gradient="linear-gradient(135deg, #a855f7 0%, #9333ea 100%)">
+          <FeatureCard to="/decisions/templates" $gradient="linear-gradient(135deg, #a855f7 0%, #9333ea 100%)">
             <FeatureIcon>
               <Sparkles />
             </FeatureIcon>

@@ -65,7 +65,7 @@ const createDecision = asyncHandler(async (req, res) => {
     status: DECISION_STATUS.COLLECTING,
   });
 
-  await decision.populate("groupId", "name memberCount");
+  await decision.populate("groupId");
 
   logger.info(`Decision session created: ${title} in group ${groupId}`);
 
@@ -201,8 +201,13 @@ const submitConstraints = asyncHandler(async (req, res) => {
     // Add constraints
     await decision.addConstraints(userId, constraintData);
 
+    // Refresh the decision to get updated constraints
+    const updatedDecision = await DecisionSession.findById(id)
+      .populate("groupId")
+      .populate("constraints.userId", "name email avatar");
+
     // Check if all members have submitted
-    const isReady = await decision.isReadyForProcessing();
+    const isReady = await updatedDecision.isReadyForProcessing();
 
     logger.info(`Constraints submitted by user ${userId} for decision ${id}`);
 
@@ -222,7 +227,7 @@ const submitConstraints = asyncHandler(async (req, res) => {
         message:
           "Constraints submitted. All members have submitted - processing decision now!",
         data: {
-          decision,
+          decision: updatedDecision,
           autoProcessing: true,
         },
       });
@@ -231,7 +236,7 @@ const submitConstraints = asyncHandler(async (req, res) => {
     res.status(HTTP_STATUS.OK).json({
       success: true,
       message: "Constraints submitted successfully",
-      data: { decision },
+      data: { decision: updatedDecision },
     });
   } catch (error) {
     return res.status(HTTP_STATUS.BAD_REQUEST).json({

@@ -63,6 +63,36 @@ const groupSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+
+    // Group preferences for AI suggestions
+    preferences: {
+      cuisines: {
+        type: [String],
+        default: ["Italian", "Japanese", "American"],
+      },
+      avgBudget: {
+        type: Number,
+        default: 50,
+      },
+      location: {
+        type: String,
+        default: "Downtown",
+      },
+      movieGenres: {
+        type: [String],
+        default: ["Action", "Comedy", "Thriller"],
+      },
+      activityTypes: {
+        type: [String],
+        default: ["Outdoor", "Entertainment"],
+      },
+    },
+
+    // Track number of past decisions (updated when decisions are created/completed)
+    totalDecisions: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

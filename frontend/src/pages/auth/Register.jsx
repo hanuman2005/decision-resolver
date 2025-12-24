@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../context/AuthContext';
 import { User, Mail, Lock, ArrowRight } from 'lucide-react';
 import Input from '../../components/common/Input.jsx';
@@ -90,85 +91,99 @@ const Register = () => {
 
   return (
     <RegisterContainer>
-      <RegisterWrapper>
+      <RegisterWrapper as={motion.div} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
         {/* Header */}
-        <RegisterHeader>
-          <RegisterIcon>
-            <User />
-          </RegisterIcon>
-          <RegisterTitle>Get Started</RegisterTitle>
-          <RegisterSubtitle>Create your account and start making better decisions</RegisterSubtitle>
-        </RegisterHeader>
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
+          <RegisterHeader>
+            <RegisterIcon>
+              <User />
+            </RegisterIcon>
+            <RegisterTitle>Get Started</RegisterTitle>
+            <RegisterSubtitle>Create your account and start making better decisions</RegisterSubtitle>
+          </RegisterHeader>
+        </motion.div>
 
         {/* Register Form */}
-        <Card>
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <Input
-              label="Full Name"
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              error={errors.name}
-              placeholder="John Doe"
-                Icon={User}
-              required
-            />
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
+          <Card>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.3 }}>
+                <Input
+                  label="Full Name"
+                  type="text"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  error={errors.name}
+                  placeholder="John Doe"
+                  Icon={User}
+                  required
+                />
+              </motion.div>
 
-            <Input
-              label="Email"
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              error={errors.email}
-              placeholder="you@example.com"
-                Icon={Mail}
-              required
-            />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.4 }}>
+                <Input
+                  label="Email"
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  error={errors.email}
+                  placeholder="you@example.com"
+                  Icon={Mail}
+                  required
+                />
+              </motion.div>
 
-            <Input
-              label="Password"
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              error={errors.password}
-              placeholder="••••••••"
-                Icon={Lock}
-              required
-            />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.5 }}>
+                <Input
+                  label="Password"
+                  type="password"
+                  name="password"
+                  value={formData.password}
+                  onChange={handleChange}
+                  error={errors.password}
+                  placeholder="••••••••"
+                  Icon={Lock}
+                  required
+                />
+              </motion.div>
 
-            <Input
-              label="Confirm Password"
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              error={errors.confirmPassword}
-              placeholder="••••••••"
-                Icon={Lock}
-              required
-            />
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.6 }}>
+                <Input
+                  label="Confirm Password"
+                  type="password"
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  error={errors.confirmPassword}
+                  placeholder="••••••••"
+                  Icon={Lock}
+                  required
+                />
+              </motion.div>
 
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={loading}
-              fullWidth
-            >
-              Create Account
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-          </form>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.7 }}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  size="lg"
+                  loading={loading}
+                  fullWidth
+                >
+                  Create Account
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </motion.div>
+            </form>
 
-          {/* Divider */}
-          <RegisterDivider />
+            {/* Divider */}
+            <RegisterDivider />
 
-          {/* Login Link */}
-          <RegisterLoginLink>
-            <span>Already have an account? </span>
+            {/* Login Link */}
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.8 }}>
+              <RegisterLoginLink>
+                <span>Already have an account? </span>
             <Link
               to="/login"
               style={{ 
@@ -179,8 +194,10 @@ const Register = () => {
             >
               Sign in instead
             </Link>
-          </RegisterLoginLink>
-        </Card>
+            </RegisterLoginLink>
+            </motion.div>
+          </Card>
+        </motion.div>
       </RegisterWrapper>
     </RegisterContainer>
   );

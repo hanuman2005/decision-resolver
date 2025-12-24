@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { AlertTriangle, Users, DollarSign, MapPin, TrendingUp, Lightbulb, ArrowRight, CheckCircle, X, Zap } from 'lucide-react';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
@@ -86,17 +87,27 @@ const ConflictResolutionUI = () => {
     setLoading(true);
     try {
       const response = await api.get('/conflicts');
-      if (response.data?.conflicts && response.data?.compromises) {
-        setConflicts(response.data.conflicts);
-        setCompromises(response.data.compromises);
+      console.log('[CONFLICT UI] API Response:', response);
+      console.log('[CONFLICT UI] Response data:', response.data);
+      
+      if (response.data?.conflicts !== undefined) {
+        setConflicts(response.data.conflicts || []);
+        setCompromises(response.data.compromises || []);
+        console.log('[CONFLICT UI] Loaded conflicts:', response.data.conflicts?.length);
+      } else if (response.conflicts !== undefined) {
+        // Response might be directly the data
+        setConflicts(response.conflicts || []);
+        setCompromises(response.compromises || []);
+        console.log('[CONFLICT UI] Loaded conflicts (direct):', response.conflicts?.length);
       } else {
         // No conflict data available yet
+        console.log('[CONFLICT UI] No conflict data in response');
         setConflicts([]);
         setCompromises([]);
       }
     } catch (error) {
       // Gracefully handle no data - likely endpoint not implemented yet
-      console.log('No conflict data available');
+      console.error('[CONFLICT UI] Error loading conflicts:', error);
       setConflicts([]);
       setCompromises([]);
     } finally {
@@ -126,7 +137,8 @@ const ConflictResolutionUI = () => {
       {conflicts.length > 0 && compromises.length > 0 ? (
         <>
           {/* Alert Header */}
-          <AlertHeader>
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+            <AlertHeader>
             <AlertContent>
               <AlertIconBox>
                 <AlertTriangle />
@@ -155,7 +167,8 @@ const ConflictResolutionUI = () => {
                 <StatLabel>Success Rate</StatLabel>
               </StatItem>
             </StatsBox>
-          </AlertHeader>
+            </AlertHeader>
+          </motion.div>
 
           {/* Conflicts Overview */}
           <ConflictsSection>
@@ -166,12 +179,13 @@ const ConflictResolutionUI = () => {
             
             <ConflictsList>
               {conflicts.map((conflict, idx) => (
-                <ConflictCard key={idx} $severity={getSeverityColor(conflict.severity)}>
+                <motion.div key={idx} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                  <ConflictCard $severity={getSeverityColor(conflict.severity)}>
                   <ConflictHeader>
                     <div>
                       <ConflictDescription>{conflict.description}</ConflictDescription>
                       <ConflictAffected>
-                        Affects: {conflict.affected.join(', ')}
+                        Affects: {conflict.participants?.map(p => p.username).join(', ') || 'Multiple members'}
                       </ConflictAffected>
                     </div>
                     <SeverityBadge $severity={getSeverityColor(conflict.severity)}>
@@ -180,141 +194,83 @@ const ConflictResolutionUI = () => {
                   </ConflictHeader>
                   
                   <ConflictDetailsGrid>
-                    {Object.entries(conflict.details).map(([user, data]) => (
-                      <UserDetailBox key={user}>
-                        <UserName>{user}</UserName>
-                        <UserWants>Wants: {data.wants}</UserWants>
-                        <UserConstraint>{data.constraint}</UserConstraint>
+                    {conflict.participants?.map((participant) => (
+                      <UserDetailBox key={participant.userId}>
+                        <UserName>{participant.username}</UserName>
+                        <UserWants>Preference: {participant.preference}</UserWants>
                       </UserDetailBox>
                     ))}
                   </ConflictDetailsGrid>
-                </ConflictCard>
+                  </ConflictCard>
+                </motion.div>
               ))}
             </ConflictsList>
           </ConflictsSection>
 
           {/* Compromise Solutions */}
-          <CompromisesSection>
-            <SectionTitle>
-              <Lightbulb />
-              Smart Compromise Solutions
-            </SectionTitle>
-        
-        <CompromisesGrid>
-          {compromises.map((compromise) => {
-            const Icon = compromise.icon;
-            const isSelected = selectedCompromise === compromise.id;
-            
-            return (
-              <CompromiseCard
-                key={compromise.id}
-                $selected={isSelected}
-              >
-                <ProbabilityBar $probability={compromise.probability} $gradient={compromise.color} />
-                
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.3 }}>
+            <CompromisesSection>
+              <SectionTitle>
+                <Lightbulb />
+                Smart Compromise Solutions
+              </SectionTitle>
+          
+              <CompromisesGrid>
+                {compromises.map((compromise, idx) => {
+                  const isSelected = selectedCompromise === compromise.id;
+                  
+                  return (
+                    <motion.div key={compromise.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: idx * 0.1 }}>
+                      <CompromiseCard
+                        $selected={isSelected}
+                      >
                 <CompromiseCardContent>
                   {/* Header */}
                   <CompromiseHeader>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <CompromiseIcon $gradient={compromise.color}>
-                        <Icon />
-                      </CompromiseIcon>
-                      <div>
-                        <CompromiseTitle>
-                          {compromise.title}
-                        </CompromiseTitle>
-                        <CompromiseSuccessRate>
-                          {compromise.probability}% success rate
-                        </CompromiseSuccessRate>
-                      </div>
+                    <div>
+                      <CompromiseTitle>
+                        {compromise.type}
+                      </CompromiseTitle>
+                      <CompromiseSuccessRate>
+                        {compromise.supportCount} member(s) support
+                      </CompromiseSuccessRate>
                     </div>
                     
-                    <ImpactBadge $impact={compromise.impact}>
-                      {compromise.impact} impact
+                    <ImpactBadge $impact={compromise.difficulty}>
+                      {compromise.difficulty}
                     </ImpactBadge>
                   </CompromiseHeader>
 
                   <CompromiseDescription>
-                    {compromise.description}
+                    {compromise.suggestion}
                   </CompromiseDescription>
 
-                  {/* Satisfaction Comparison */}
-                  <SatisfactionBox>
-                    <SatisfactionLabel>
-                      Satisfaction Impact:
-                    </SatisfactionLabel>
-                    {Object.entries(compromise.satisfaction.after).map(([user, score]) => (
-                      <SatisfactionItem key={user}>
-                        <SatisfactionUser>{user}</SatisfactionUser>
-                        <SatisfactionBar>
-                          <div style={{ width: `${score}%`, height: '100%', background: 'linear-gradient(90deg, #10b981, #059669)', borderRadius: '9999px' }} />
-                        </SatisfactionBar>
-                        <SatisfactionScore>
-                          {score}%
-                        </SatisfactionScore>
-                      </SatisfactionItem>
-                    ))}
-                  </SatisfactionBox>
-
-                  {/* Recommendation */}
-                  <RecommendationBox $gradient={compromise.color}>
-                    <RecommendationTitle>
-                      <Zap />
-                      Recommendation:
-                    </RecommendationTitle>
-                    <RecommendationContent>
-                      {Object.entries(compromise.recommendation).map(([key, value]) => (
-                        <RecommendationItem key={key}>
-                          <strong style={{ textTransform: 'capitalize' }}>{key.replace(/_/g, ' ')}:</strong>{' '}
-                          {Array.isArray(value) ? value.join(', ') : value}
-                        </RecommendationItem>
-                      ))}
-                    </RecommendationContent>
-                  </RecommendationBox>
-
-                  {/* Tradeoffs */}
-                  <TradeoffsSection>
-                    <TradeoffLabel>
-                      What Changes:
-                    </TradeoffLabel>
-                    {compromise.tradeoffs.map((tradeoff, idx) => (
-                      <TradeoffItem key={idx}>
-                        <TradeoffArrow>
-                          <ArrowRight />
-                        </TradeoffArrow>
-                        <TradeoffText>
-                          <span style={{ fontWeight: '500', color: '#ffffff' }}>{tradeoff.user}:</span>{' '}
-                          <span style={{ color: '#cbd5e1' }}>{tradeoff.change}</span>
-                          <span style={{ color: '#10b981' }}> → {tradeoff.benefit}</span>
-                        </TradeoffText>
-                      </TradeoffItem>
-                    ))}
-                  </TradeoffsSection>
-
                   {/* Action Button */}
-                  {isSelected ? (
-                    <SelectedButton>
-                      <ActionContent>
-                        <CheckCircle />
-                        Selected
-                      </ActionContent>
-                    </SelectedButton>
-                  ) : (
-                    <ActionButton
+                  <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <button
                       onClick={() => handleSelectCompromise(compromise.id)}
+                      style={{
+                        flex: 1,
+                        padding: '0.75rem',
+                        background: isSelected ? '#10b981' : '#e5e7eb',
+                        color: isSelected ? '#fff' : '#374151',
+                        border: 'none',
+                        borderRadius: '0.5rem',
+                        cursor: 'pointer',
+                        fontWeight: '500'
+                      }}
                     >
-                      <ActionContent>
-                        <Lightbulb />
-                        Apply This Compromise
-                      </ActionContent>
-                    </ActionButton>
-                  )}
+                      {isSelected ? '✓ Selected' : 'Select'}
+                    </button>
+                  </div>
                 </CompromiseCardContent>
-              </CompromiseCard>
-            );
-          })}
-        </CompromisesGrid>
-      </CompromisesSection>
+                      </CompromiseCard>
+                    </motion.div>
+                  );
+                })}
+              </CompromisesGrid>
+            </CompromisesSection>
+          </motion.div>
 
       {/* Action Buttons */}
       {selectedCompromise && (

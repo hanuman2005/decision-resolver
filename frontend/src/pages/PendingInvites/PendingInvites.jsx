@@ -8,6 +8,8 @@ import Card from '../../components/common/Card';
 import toast from 'react-hot-toast';
 
 const Container = styled.div`
+  min-height: 100vh;
+  background: linear-gradient(135deg, #011425 0%, #1f4959 50%, #5c7c89 100%);
   max-width: 800px;
   margin: 0 auto;
   padding: 1.5rem;

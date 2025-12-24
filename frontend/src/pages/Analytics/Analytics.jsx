@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { TrendingUp, Users, CheckCircle, Award, Calendar, Target } from 'lucide-react';
 import { DashboardContainer, Header, Title, Subtitle, StatsGrid, StatCard, StatHeader, StatIcon, StatValue, StatLabel, StatChange, ChartsGrid, ChartCard, ChartTitle, TimeRangeContainer, TimeRangeButton } from './styledComponents';
@@ -134,66 +135,34 @@ const AnalyticsDashboard = () => {
       </Header>
 
       {/* Stats Cards */}
-      <StatsGrid>
-        <StatCard $color="blue">
-          <StatHeader>
-            <StatIcon $bgColor="blue">
-              <CheckCircle style={{ width: '24px', height: '24px', color: '#2563eb' }} />
-            </StatIcon>
-          </StatHeader>
-          <StatValue>{stats.totalDecisions}</StatValue>
-          <StatLabel>Total Decisions</StatLabel>
-          <StatChange $positive>
-            <TrendingUp style={{ width: '16px', height: '16px' }} />
-            +12.5% from last week
-          </StatChange>
-        </StatCard>
-
-        <StatCard $color="green">
-          <StatHeader>
-            <StatIcon $bgColor="green">
-              <Users style={{ width: '24px', height: '24px', color: '#059669' }} />
-            </StatIcon>
-          </StatHeader>
-          <StatValue>{stats.activeGroups}</StatValue>
-          <StatLabel>Active Groups</StatLabel>
-          <StatChange $positive>
-            <TrendingUp style={{ width: '16px', height: '16px' }} />
-            +8.3% from last week
-          </StatChange>
-        </StatCard>
-
-        <StatCard $color="purple">
-          <StatHeader>
-            <StatIcon $bgColor="purple">
-              <Award style={{ width: '24px', height: '24px', color: '#7c3aed' }} />
-            </StatIcon>
-          </StatHeader>
-          <StatValue>{stats.avgSatisfaction}/10</StatValue>
-          <StatLabel>Avg Satisfaction</StatLabel>
-          <StatChange $positive>
-            <TrendingUp style={{ width: '16px', height: '16px' }} />
-            +0.4 from last week
-          </StatChange>
-        </StatCard>
-
-        <StatCard $color="orange">
-          <StatHeader>
-            <StatIcon $bgColor="orange">
-              <Target style={{ width: '24px', height: '24px', color: '#ea580c' }} />
-            </StatIcon>
-          </StatHeader>
-          <StatValue>{stats.successRate}%</StatValue>
-          <StatLabel>Success Rate</StatLabel>
-          <StatChange $positive>
-            <TrendingUp style={{ width: '16px', height: '16px' }} />
-            +2.1% from last week
-          </StatChange>
-        </StatCard>
+      <StatsGrid as={motion.div} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }}>
+        {[
+          { color: 'blue', icon: CheckCircle, value: stats.totalDecisions, label: 'Total Decisions', change: '+12.5% from last week' },
+          { color: 'green', icon: Users, value: stats.activeGroups, label: 'Active Groups', change: '+3 this month' },
+          { color: 'orange', icon: Award, value: `${stats.avgSatisfaction}/10`, label: 'Avg Satisfaction', change: '+0.4 from last week' },
+          { color: 'red', icon: Target, value: `${stats.successRate}%`, label: 'Success Rate', change: '+2.1% from last week' }
+        ].map((stat, index) => (
+          <motion.div key={index} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: index * 0.1 }}>
+            <StatCard $color={stat.color}>
+              <StatHeader>
+                <StatIcon $bgColor={stat.color}>
+                  <stat.icon style={{ width: '24px', height: '24px', color: stat.color === 'blue' ? '#2563eb' : stat.color === 'green' ? '#059669' : stat.color === 'orange' ? '#d97706' : '#dc2626' }} />
+                </StatIcon>
+              </StatHeader>
+              <StatValue>{stat.value}</StatValue>
+              <StatLabel>{stat.label}</StatLabel>
+              <StatChange $positive={true}>
+                <TrendingUp style={{ width: '16px', height: '16px' }} />
+                {stat.change}
+              </StatChange>
+            </StatCard>
+          </motion.div>
+        ))}
       </StatsGrid>
 
       {/* Charts Row 1 */}
-      <ChartsGrid>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.4 }}>
+        <ChartsGrid>
         {/* Decision Trend */}
         <ChartCard>
           <ChartTitle>📈 Decision Activity Trend</ChartTitle>
@@ -317,9 +286,11 @@ const AnalyticsDashboard = () => {
           </ResponsiveContainer>
         </ChartCard>
       </ChartsGrid>
+      </motion.div>
 
       {/* Time Range Selector */}
-      <TimeRangeContainer>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.6 }}>
+        <TimeRangeContainer>
         {['7days', '30days', '90days', 'all'].map((range) => (
           <TimeRangeButton
             key={range}
@@ -332,7 +303,8 @@ const AnalyticsDashboard = () => {
             {range === 'all' && 'All Time'}
           </TimeRangeButton>
         ))}
-      </TimeRangeContainer>
+        </TimeRangeContainer>
+      </motion.div>
     </DashboardContainer>
   );
 };
